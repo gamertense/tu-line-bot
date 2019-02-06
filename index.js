@@ -4,6 +4,7 @@ const app = express()
 const port = process.env.PORT || 8080;
 
 const firebase = require('./firebase')
+
 const bodyMassIndex = () => {
     let weight = request.body.queryResult.parameters.weight;
     let height = request.body.queryResult.parameters.height / 100;
@@ -23,7 +24,7 @@ const bodyMassIndex = () => {
     }
 
     firebase.database().ref('/bmi/' + bmi_result).once('value').then(function (snapshot) {
-        console.log(snapshot.val().description)
+        return snapshot.val().description;
     })
 }
 
@@ -31,14 +32,14 @@ app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
-    
 })
 
 app.post('/webhook', function (request, response) {
-    console.log(request.body)
-    if (request.body.queryResult.intent.displayName === 'top-rated') {
+    let queryResult = request.body.queryResult;
+    console.log(queryResult)
+    if (queryResult.intent.displayName === 'BMI') {
         response.send(JSON.stringify({
-            "fulfillmentText": "Error. Can you try it again ? ",
+            "fulfillmentText": bodyMassIndex()
         }));
     }
 })
