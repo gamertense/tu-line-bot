@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 app.post('/webhook', function (request, response) {
     let queryResult = request.body.queryResult;
     console.log(queryResult)
-    if (queryResult.intent.displayName === 'BMI') {
+    if (queryResult.intent.displayName === 'BMI - custom - yes') {
         response.send(JSON.stringify({
             "fulfillmentText": bodyMassIndex(queryResult)
         }));
