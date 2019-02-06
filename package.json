@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "firebase": "^5.8.2"
+  },
+  "name": "tu-line-bot",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Antonio Jack <ict2jack@gmail.com>",
+  "license": "MIT"
+}
