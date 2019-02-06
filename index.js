@@ -5,9 +5,9 @@ const port = process.env.PORT || 8080;
 
 const firebase = require('./firebase')
 
-const bodyMassIndex = () => {
-    let weight = request.body.queryResult.parameters.weight;
-    let height = request.body.queryResult.parameters.height / 100;
+const bodyMassIndex = (queryResult) => {
+    let weight = queryResult.parameters.weight;
+    let height = queryResult.parameters.height / 100;
     let bmi = (weight / (height * height)).toFixed(2);
     let bmi_result = "none";
 
@@ -39,7 +39,7 @@ app.post('/webhook', function (request, response) {
     console.log(queryResult)
     if (queryResult.intent.displayName === 'BMI') {
         response.send(JSON.stringify({
-            "fulfillmentText": bodyMassIndex()
+            "fulfillmentText": bodyMassIndex(queryResult)
         }));
     }
 })
