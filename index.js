@@ -50,7 +50,7 @@ const bodyMassIndex = (queryResult, response) => {
                     }
                 }
             ]
-        }));
+        });
     })
 }
 
