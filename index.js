@@ -5,7 +5,7 @@ const port = process.env.PORT || 8080;
 
 const firebase = require('./firebase')
 
-const bodyMassIndex = (queryResult) => {
+const bodyMassIndex = (queryResult, response) => {
     let weight = queryResult.parameters.weight;
     let height = queryResult.parameters.height / 100;
     let bmi = (weight / (height * height)).toFixed(2);
@@ -24,23 +24,25 @@ const bodyMassIndex = (queryResult) => {
     }
 
     firebase.database().ref('/bmi/' + bmi_result).once('value').then(function (snapshot) {
-        return snapshot.val().description;
+        response.send(JSON.stringify({
+            "fulfillmentText": snapshot.val()
+        }));
     })
 }
 
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    // res.send('Hello World!');
+    queryResult = { parameters: { weight: 50, height: 165 } }
+    bodyMassIndex(queryResult, res);
 })
 
 app.post('/webhook', function (request, response) {
     let queryResult = request.body.queryResult;
     console.log(queryResult)
     if (queryResult.intent.displayName === 'BMI - custom - yes') {
-        response.send(JSON.stringify({
-            "fulfillmentText": bodyMassIndex(queryResult)
-        }));
+        bodyMassIndex(queryResult, response);
     }
 })
 
