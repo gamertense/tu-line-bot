@@ -36,45 +36,10 @@ const bodyMassIndex = (queryResult, response) => {
         result = 'xl';
     }
 
-    list = []
     firebase.database().ref('/bmi/' + result).once('value').then(function (snapshot) {
         let bmi_result = snapshot.val();
-        list.push({
-            type: "bubble",
-            direction: "rtl",
-            body: {
-                type: "box",
-                layout: "vertical",
-                spacing: "xs",
-                contents: [
-                    {
-                        type: "button",
-                        action: {
-                            type: "uri",
-                            label: bmi_result,
-                            uri: "line://app/1589898239-YE83yRX2"
-                        },
-                        flex: 1,
-                        gravity: "center"
-                    }
-                ]
-            }
-        })
         response.send({
-            "fulfillmentMessages": [
-                {
-                    "payload": {
-                        "line": {
-                            "type": "flex",
-                            "altText": "Flex Message",
-                            "contents": {
-                                "type": "carousel",
-                                "contents": list
-                            }
-                        }
-                    }
-                }
-            ]
+            "fulfillmentText": bmi_result
         });
     })
 }
