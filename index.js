@@ -36,16 +36,41 @@ const bodyMassIndex = (queryResult, response) => {
         result = 'xl';
     }
 
+    list = []
     firebase.database().ref('/bmi/' + result).once('value').then(function (snapshot) {
         let bmi_result = snapshot.val();
+        list.push({
+            type: "bubble",
+            direction: "rtl",
+            body: {
+                type: "box",
+                layout: "vertical",
+                spacing: "xs",
+                contents: [
+                    {
+                        type: "button",
+                        action: {
+                            type: "uri",
+                            label: bmi_result,
+                            uri: "line://app/1589898239-YE83yRX2"
+                        },
+                        flex: 1,
+                        gravity: "center"
+                    }
+                ]
+            }
+        })
         response.send({
-            fulfillmentText: [
+            "fulfillmentMessages": [
                 {
-                    payload: {
-                        line: {
-                            type: "sticker",
-                            packageId: pkgId,
-                            stickerId: stkId
+                    "payload": {
+                        "line": {
+                            "type": "flex",
+                            "altText": "Flex Message",
+                            "contents": {
+                                "type": "carousel",
+                                "contents": list
+                            }
                         }
                     }
                 }
@@ -64,7 +89,7 @@ app.get('/', (req, res) => {
 
 app.post('/webhook', function (request, response) {
     let queryResult = request.body.queryResult;
-    console.log(request.body)
+    console.log(queryResult)
     if (queryResult.intent.displayName === 'BMI - custom - yes') {
         bodyMassIndex(queryResult, response);
     }
