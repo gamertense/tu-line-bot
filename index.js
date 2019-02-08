@@ -55,8 +55,15 @@ app.get('/', (req, res) => {
 app.post('/webhook', function (request, response) {
     let queryResult = request.body.queryResult;
     console.log(queryResult)
-    if (queryResult.intent.displayName === 'BMI - custom - yes') {
-        bodyMassIndex(queryResult, response);
+    switch (queryResult.intent.displayName) {
+        case 'Popular restaurant':
+
+            break;
+        case 'BMI - custom - yes':
+            bodyMassIndex(queryResult, response);
+            break;
+        default:
+            console.log("Case no match")
     }
 })
 
