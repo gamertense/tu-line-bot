@@ -95,20 +95,31 @@ const popularRest = (res) => {
         });
 }
 
+const seatType = (userid, queryResult, res) => {
+    let seatRef = firestoreDB.collection('users').doc(userid);
+
+    seatRef.set({
+        seattype: queryResult.parameters.seattype
+    }, { merge: true })
+}
+
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     // queryResult = { parameters: { weight: 50, height: 165 } }
     // bodyMassIndex(queryResult, res);
-    popularRest(res);
+    seatType(res);
 })
 
 app.post('/webhook', function (request, response) {
     let queryResult = request.body.queryResult;
     console.log(queryResult)
     switch (queryResult.intent.displayName) {
+        case 'Seat type preference':
+            // console.log(request.body.originalDetectIntentRequest.payload.data.source.userId) //Sample query for getting user id
+            seatType(req.body.originalDetectIntentRequest.payload.data.source.userId, queryResult, response);
+            break;
         case 'Popular restaurant':
-            console.log(request.body.originalDetectIntentRequest.payload.data)
             popularRest(response);
             break;
         case 'BMI - custom - yes':
