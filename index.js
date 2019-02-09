@@ -97,7 +97,7 @@ const popularRest = (res) => {
 
 const seatType = (userid, queryResult, res) => {
     console.log(`User: ${userId}`)
-    console.log(`Seat type: ${seatType}`)
+    console.log(`Seat type: ${queryResult.parameters.seattype}`)
     const usersRef = firestoreDB.collection('users').doc(userid)
 
     usersRef.set({
@@ -119,7 +119,7 @@ app.post('/webhook', function (request, response) {
     switch (queryResult.intent.displayName) {
         case 'Seat type preference':
             // console.log(request.body.originalDetectIntentRequest.payload.data.source.userId) //Sample query for getting user id
-            seatType(req.body.originalDetectIntentRequest.payload.data.source.userId, queryResult, response);
+            seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult, response);
             break;
         case 'Popular restaurant':
             popularRest(response);
