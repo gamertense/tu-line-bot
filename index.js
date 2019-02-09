@@ -74,10 +74,20 @@ const popularRest = (res) => {
                 res_list.push(obj)
             });
             res.send({
-                fulfillmentMessages: {
-                    "type": "carousel",
-                    "contents": res_list
-                }
+                "fulfillmentMessages": [
+                    {
+                        "payload": {
+                            "line": {
+                                "type": "flex",
+                                "altText": "Flex Message",
+                                "contents": {
+                                    "type": "carousel",
+                                    "contents": res_list
+                                }
+                            }
+                        }
+                    }
+                ]
             })
         })
         .catch(err => {
@@ -109,4 +119,4 @@ app.post('/webhook', function (request, response) {
     }
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`App listening on port ${port}!`))
