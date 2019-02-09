@@ -2,22 +2,20 @@
     "type": "bubble",
     "hero": {
         "type": "image",
-        "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
         "size": "full",
         "aspectRatio": "20:13",
         "aspectMode": "cover",
-        "action": {
-            "type": "uri",
-            "uri": "http://linecorp.com/"
-        }
+        "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png"
     },
     "body": {
         "type": "box",
         "layout": "vertical",
+        "spacing": "sm",
         "contents": [
             {
                 "type": "text",
                 "text": "Brown Cafe",
+                "wrap": true,
                 "weight": "bold",
                 "size": "xl"
             },
@@ -100,15 +98,13 @@
         "contents": [
             {
                 "type": "button",
-                "style": "link",
-                "height": "sm",
+                "style": "primary",
                 "action": {
                     "type": "uri",
-                    "label": "GO",
+                    "label": "Go",
                     "uri": "https://linecorp.com"
                 }
             }
-        ],
-        "flex": 0
+        ]
     }
 }

@@ -73,7 +73,12 @@ const popularRest = (res) => {
                 obj.body.contents[2].contents[0].contents[1].text = doc.data().place;
                 res_list.push(obj)
             });
-            res.send({ fulfillmentMessages: res_list })
+            res.send({
+                fulfillmentMessages: {
+                    "type": "carousel",
+                    "contents": res_list
+                }
+            })
         })
         .catch(err => {
             console.log('Error getting documents', err);
@@ -93,7 +98,7 @@ app.post('/webhook', function (request, response) {
     console.log(queryResult)
     switch (queryResult.intent.displayName) {
         case 'Popular restaurant':
-            console.log(request.body)
+            console.log(request.body.originalDetectIntentRequest.payload.data)
             popularRest(response);
             break;
         case 'BMI - custom - yes':
