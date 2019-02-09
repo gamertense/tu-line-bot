@@ -96,7 +96,7 @@ const popularRest = (res) => {
 }
 
 const seatType = (userid, queryResult, res) => {
-    console.log(`User: ${userId}`)
+    console.log(`User: ${userid}`)
     console.log(`Seat type: ${queryResult.parameters.seattype}`)
     const usersRef = firestoreDB.collection('users').doc(userid)
 
