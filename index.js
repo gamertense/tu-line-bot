@@ -95,15 +95,15 @@ const popularRest = (res) => {
         });
 }
 
-const seatType = (userid, queryResult, res) => {
+const seatType = (userid, queryResult) => {
     let seattype = queryResult.parameters.seattype;
 
     if (seatType === 'ไม้')
-        seatType = 'wood'
+        seatType = 'wood';
     else if (seatType === 'เหล็ก')
-        seatType = 'steel'
+        seatType = 'steel';
 
-    const usersRef = firestoreDB.collection('users').doc(userid)
+    const usersRef = firestoreDB.collection('users').doc(userid);
 
     usersRef.set({
         seattype: seattype
@@ -123,7 +123,7 @@ app.post('/webhook', function (request, response) {
     console.log(queryResult)
     switch (queryResult.intent.displayName) {
         case 'Seat type preference':
-            seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult, response);
+            seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult);
             break;
         case 'Popular restaurant':
             popularRest(response);
