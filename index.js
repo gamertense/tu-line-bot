@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const app = express()
 const port = process.env.PORT || 8080;
 
-const firebase = require('./firebase')
+const firestoreDB = require('./firestore/firestore')
 
 const bodyMassIndex = (queryResult, response) => {
     let weight = queryResult.parameters.weight;
@@ -36,20 +36,33 @@ const bodyMassIndex = (queryResult, response) => {
         result = 'xl';
     }
 
-    firebase.database().ref('/bmi/' + result).once('value').then(function (snapshot) {
-        let bmi_result = snapshot.val();
-        response.send({
-            "fulfillmentText": bmi_result
+    firestoreDB.collection('bmi').doc(result).get()
+        .then(doc => {
+            if (!doc.exists) {
+                console.log('No such document!');
+            } else {
+                console.log(doc.id, '=>', doc.data());
+                response.send({
+                    "fulfillmentText": doc.data().description
+                });
+            }
+        })
+        .catch(err => {
+            console.log('Error getting document', err);
         });
-    })
+}
+
+const popularRest = (res) => {
+    const restaurant_template = require('./restaurant.json');
+
 }
 
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    // res.send('Hello World!');
     queryResult = { parameters: { weight: 50, height: 165 } }
     bodyMassIndex(queryResult, res);
+    // popularRest(res);
 })
 
 app.post('/webhook', function (request, response) {
@@ -57,7 +70,8 @@ app.post('/webhook', function (request, response) {
     console.log(queryResult)
     switch (queryResult.intent.displayName) {
         case 'Popular restaurant':
-
+            const restaurant = require('./restaurant.json')
+            console.log(restaurant);
             break;
         case 'BMI - custom - yes':
             bodyMassIndex(queryResult, response);

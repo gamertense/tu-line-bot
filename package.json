@@ -2,7 +2,8 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "firebase": "^5.8.2"
+    "firebase": "^5.8.2",
+    "firebase-admin": "^7.0.0"
   },
   "name": "tu-line-bot",
   "scripts": {
