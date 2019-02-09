@@ -106,7 +106,7 @@ const seatType = (userid, queryResult, res) => {
     const usersRef = firestoreDB.collection('users').doc(userid)
 
     usersRef.set({
-        seattype: queryResult.parameters.seattype
+        seattype: seattype
     }, { merge: true });
 }
 
