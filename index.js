@@ -96,11 +96,13 @@ const popularRest = (res) => {
 }
 
 const seatType = (userid, queryResult, res) => {
-    let seatRef = firestoreDB.collection('users').doc(userid);
+    console.log(`User: ${userId}`)
+    console.log(`Seat type: ${seatType}`)
+    const usersRef = firestoreDB.collection('users').doc(userid)
 
-    seatRef.set({
+    usersRef.set({
         seattype: queryResult.parameters.seattype
-    }, { merge: true })
+    }, { merge: true });
 }
 
 app.use(bodyParser.json());
