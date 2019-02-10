@@ -148,7 +148,7 @@ const popularRest = (res) => {
 }
 
 const seatType = (userid, queryResult) => {
-    let seattype = queryResult.parameters.seattype;
+    let seat_type = queryResult.parameters.seattype;
 
     if (seat_type === 'ไม้')
         seat_type = 'wood';
