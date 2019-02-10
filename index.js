@@ -87,9 +87,9 @@ const voteRest = (queryResult, response) => {
 
                             const languageCode = queryResult.languageCode;
                             if (languageCode === 'th')
-                                res.send({ "fulfillmentText": `ให้ร้าน ${rest_name} ทั้งหมด ${vote_point} คะแนนนะครับ ขอบคุณครับสำหรับคะแนนครับ` })
+                                response.send({ "fulfillmentText": `ให้ร้าน ${rest_name} ทั้งหมด ${vote_point} คะแนนนะครับ ขอบคุณครับสำหรับคะแนนครับ` })
                             else
-                                res.send({ "fulfillmentText": `Thank you for giving a vote to ${rest_name} with ${vote_point} point` })
+                                response.send({ "fulfillmentText": `Thank you for giving a vote to ${rest_name} with ${vote_point} point` })
                         })
                     }).then(function () {
                         console.log("Transaction successfully committed!");
