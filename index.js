@@ -52,6 +52,27 @@ const bodyMassIndex = (queryResult, response) => {
         });
 }
 
+const voteRest = (rest_name, rating, res) => {
+    // Create a reference to the cities collection
+    var restRef = firestoreDB.collection('restaurants');
+
+    restRef.where('name', '==', rest_name).get()
+        .then(snapshot => {
+            if (snapshot.empty) {
+                console.log('No matching documents.');
+                return;
+            } else {
+                snapshot.forEach(doc => {
+                    restRef.doc(doc.id).update({ rating });
+                    res.send({ status: 'completed' })
+                });
+            }
+        })
+        .catch(err => {
+            console.log('Error getting document', err);
+        });
+}
+
 const popularRest = (res) => {
     let restaurant_template = require('./restaurant.json');
     let res_list = []
@@ -98,16 +119,14 @@ const popularRest = (res) => {
 const seatType = (userid, queryResult) => {
     let seattype = queryResult.parameters.seattype;
 
-    if (seatType === 'ไม้')
-        seatType = 'wood';
-    else if (seatType === 'เหล็ก')
-        seatType = 'steel';
+    if (seat_type === 'ไม้')
+        seat_type = 'wood';
+    else if (seat_type === 'เหล็ก')
+        seat_type = 'steel';
 
-    const usersRef = firestoreDB.collection('users').doc(userid);
+    const usersRef = firestoreDB.collection('user').doc(userid);
 
-    usersRef.set({
-        seattype: seattype
-    }, { merge: true });
+    usersRef.set({ seat_type }, { merge: true });
 }
 
 app.use(bodyParser.json());
@@ -115,7 +134,7 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     // queryResult = { parameters: { weight: 50, height: 165 } }
     // bodyMassIndex(queryResult, res);
-    seatType(res);
+    voteRest('Hotto Bun', 1, res)
 })
 
 app.post('/webhook', function (request, response) {
