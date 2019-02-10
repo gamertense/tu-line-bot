@@ -84,7 +84,6 @@ const voteRest = (queryResult, response) => {
                                 numRatings: newNumRatings,
                                 avgRating: newAvgRating
                             });
-                            response.send({ fulfillmentText: 'Thank you for your vote!' })
                         })
                     }).then(function () {
                         console.log("Transaction successfully committed!");
