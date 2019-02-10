@@ -52,19 +52,44 @@ const bodyMassIndex = (queryResult, response) => {
         });
 }
 
-const voteRest = (rest_name, rating, res) => {
+const voteRest = (rest_name, rating, response) => {
     // Create a reference to the cities collection
-    var restRef = firestoreDB.collection('restaurants');
+    const restaurantRef = firestoreDB.collection('restaurant');
 
-    restRef.where('name', '==', rest_name).get()
+    restaurantRef.where('name', '==', rest_name).get()
         .then(snapshot => {
             if (snapshot.empty) {
                 console.log('No matching documents.');
-                return;
+                res.send({ fulfillmentText: 'Sorry, we cannot find that restaurant' });
             } else {
                 snapshot.forEach(doc => {
-                    restRef.doc(doc.id).update({ rating });
-                    res.send({ status: 'completed' })
+                    return firestoreDB.runTransaction(transaction => {
+                        return transaction.get(restaurantRef.doc(doc.id)).then(res => {
+                            if (!res.exists) {
+                                throw "Document does not exist!";
+                            }
+
+                            // Compute new number of ratings
+                            let newNumRatings = res.data().numRatings + 1;
+
+                            // Compute new average rating
+                            let oldRatingTotal = res.data().avgRating * res.data().numRatings;
+                            let newAvgRating = (oldRatingTotal + rating) / newNumRatings;
+                            // Limit to two decimal places
+                            newAvgRating = parseFloat(newAvgRating.toFixed(2))
+
+                            // Commit to Firestore
+                            transaction.update(restaurantRef.doc(doc.id), {
+                                numRatings: newNumRatings,
+                                avgRating: newAvgRating
+                            });
+                            response.send({ fulfillmentText: 'Thank you for your vote!' })
+                        })
+                    }).then(function () {
+                        console.log("Transaction successfully committed!");
+                    }).catch(function (error) {
+                        console.log("Transaction failed: ", error);
+                    });
                 });
             }
         })
@@ -77,7 +102,7 @@ const popularRest = (res) => {
     let restaurant_template = require('./restaurant.json');
     let res_list = []
 
-    var resRef = firestoreDB.collection('restaurants');
+    let resRef = firestoreDB.collection('restaurants');
     // Create a query against the collection
     resRef.where('rating', '>=', 4).get()
         .then(snapshot => {
@@ -134,7 +159,7 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     // queryResult = { parameters: { weight: 50, height: 165 } }
     // bodyMassIndex(queryResult, res);
-    voteRest('Hotto Bun', 1, res)
+    voteRest('Hotto Bun', 4, res)
 })
 
 app.post('/webhook', function (request, response) {
