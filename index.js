@@ -52,8 +52,9 @@ const bodyMassIndex = (queryResult, response) => {
         });
 }
 
-const voteRest = (rest_name, rating, response) => {
-    // Create a reference to the cities collection
+const voteRest = (queryResult, response) => {
+    const rest_name = queryResult.parameters.rest_name;
+    const vote_point = queryResult.parameters.point;
     const restaurantRef = firestoreDB.collection('restaurant');
 
     restaurantRef.where('name', '==', rest_name).get()
@@ -74,7 +75,7 @@ const voteRest = (rest_name, rating, response) => {
 
                             // Compute new average rating
                             let oldRatingTotal = res.data().avgRating * res.data().numRatings;
-                            let newAvgRating = (oldRatingTotal + rating) / newNumRatings;
+                            let newAvgRating = (oldRatingTotal + vote_point) / newNumRatings;
                             // Limit to two decimal places
                             newAvgRating = parseFloat(newAvgRating.toFixed(2))
 
@@ -168,6 +169,9 @@ app.post('/webhook', function (request, response) {
     switch (queryResult.intent.displayName) {
         case 'Seat type preference':
             seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult);
+            break;
+        case 'Vote restaurant':
+            voteRest(queryResult, response)
             break;
         case 'Popular restaurant':
             popularRest(response);
