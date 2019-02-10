@@ -170,7 +170,7 @@ app.post('/webhook', function (request, response) {
         case 'Seat type preference':
             seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult);
             break;
-        case 'Vote restaurant':
+        case 'voterest - custom':
             voteRest(queryResult, response)
             break;
         case 'Popular restaurant':
