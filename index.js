@@ -171,7 +171,7 @@ app.get('/', (req, res) => {
 
 app.post('/webhook', function (request, response) {
     let queryResult = request.body.queryResult;
-    console.log(request.body.originalDetectIntentRequest.payload.data)
+    console.log(request.body)
     switch (queryResult.intent.displayName) {
         case 'Seat type preference':
             seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult, response);
