@@ -147,7 +147,7 @@ const popularRest = (res) => {
         });
 }
 
-const seatType = (userid, queryResult) => {
+const seatType = (userid, queryResult, response) => {
     let seat_type = queryResult.parameters.seattype;
 
     if (seat_type === 'ไม้')
@@ -158,6 +158,7 @@ const seatType = (userid, queryResult) => {
     const usersRef = firestoreDB.collection('user').doc(userid);
 
     usersRef.set({ seat_type }, { merge: true });
+    response.send({ "fulfillmentText": `คุณเลือกที่นั่ง ${seat_type} ระบบได้บันทึกข้อมูลเรียบร้อยครับ` })
 }
 
 app.use(bodyParser.json());
@@ -173,7 +174,7 @@ app.post('/webhook', function (request, response) {
     console.log(queryResult)
     switch (queryResult.intent.displayName) {
         case 'Seat type preference':
-            seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult);
+            seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult, response);
             break;
         case 'voterest - custom':
             voteRest(queryResult, response)
