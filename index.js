@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser');
+const request = require('request')
 const app = express()
 const port = process.env.PORT || 8080;
 
@@ -161,33 +162,63 @@ const seatType = (userid, queryResult, response) => {
     response.send({ "fulfillmentText": `คุณเลือกที่นั่ง ${seat_type} ระบบได้บันทึกข้อมูลเรียบร้อยครับ` })
 }
 
+const reply = (reply_token) => {
+    let headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer {xxxxxxx}'
+    }
+    let body = JSON.stringify({
+        replyToken: reply_token,
+        messages: [{
+            type: 'text',
+            text: msg
+        }]
+    })
+    request.post({
+        url: 'https://api.line.me/v2/bot/message/reply',
+        headers: headers,
+        body: body
+    }, (err, res, body) => {
+        console.log('status = ' + res.statusCode);
+    });
+}
+
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     // queryResult = { parameters: { weight: 50, height: 165 } }
     // bodyMassIndex(queryResult, res);
-    voteRest('Hotto Bun', 4, res)
+    // voteRest('Hotto Bun', 4, res)
+    let reply_token = req.body.events[0].replyToken
+    reply(reply_token)
+    res.sendStatus(200)
 })
 
 app.post('/webhook', function (request, response) {
-    let queryResult = request.body.queryResult;
-    console.log(request.body)
-    switch (queryResult.intent.displayName) {
-        case 'Seat type preference':
-            seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult, response);
-            break;
-        case 'voterest - custom':
-            voteRest(queryResult, response)
-            break;
-        case 'Popular restaurant':
-            popularRest(response);
-            break;
-        case 'BMI - custom - yes':
-            bodyMassIndex(queryResult, response);
-            break;
-        default:
-            console.log("Case no match")
-    }
+    let reply_token = req.body.events[0].replyToken
+    let msg = req.body.events[0].message.text
+    reply(reply_token, msg)
+    res.sendStatus(200)
+
+    // let queryResult = request.body.queryResult;
+    // console.log(request.body)
+    // switch (queryResult.intent.displayName) {
+    //     case 'Seat type preference':
+    //         seatType(request.body.originalDetectIntentRequest.payload.data.source.userId, queryResult, response);
+    //         break;
+    //     case 'voterest - custom':
+    //         voteRest(queryResult, response)
+    //         break;
+    //     case 'Popular restaurant':
+    //         popularRest(response);
+    //         break;
+    //     case 'BMI - custom - yes':
+    //         bodyMassIndex(queryResult, response);
+    //         break;
+    //     default:
+    //         console.log("Case no match")
+    // }
 })
 
 app.listen(port, () => console.log(`App listening on port ${port}!`))

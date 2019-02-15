@@ -1,9 +1,12 @@
 {
   "dependencies": {
+    "@firebase/app-types": "^0.3.4",
+    "@firebase/util": "0.x",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "firebase": "^5.8.2",
-    "firebase-admin": "^7.0.0"
+    "firebase-admin": "^7.0.0",
+    "request": "^2.88.0"
   },
   "name": "tu-line-bot",
   "scripts": {
