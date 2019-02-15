@@ -165,7 +165,7 @@ const seatType = (userid, queryResult, response) => {
 const reply = (reply_token, msg) => {
     let headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer {xxxxxxx}'
+        'Authorization': 'v83CTPe8O1WbLNeBltRxyZHx8s1KcIrhnKaLeZR6cLXXGo7KdNWAAz1exXquedCrstBRfhEi8X3it9tGrdGK+ICXt+wzAkeD6jf9fOpclcFQBTWVR7qRz1MGk5sQ3CY5vyPXQaMpXpZSZqFYI5DJcQdB04t89/1O/w1cDnyilFU='
     }
     let body = JSON.stringify({
         replyToken: reply_token,
