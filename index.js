@@ -190,9 +190,7 @@ app.get('/', (req, res) => {
     // queryResult = { parameters: { weight: 50, height: 165 } }
     // bodyMassIndex(queryResult, res);
     // voteRest('Hotto Bun', 4, res)
-    let reply_token = req.body.events[0].replyToken
-    reply(reply_token)
-    res.sendStatus(200)
+    res.send('Hello')
 })
 
 app.post('/webhook', function (request, response) {
