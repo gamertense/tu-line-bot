@@ -162,7 +162,7 @@ const seatType = (userid, queryResult, response) => {
     response.send({ "fulfillmentText": `คุณเลือกที่นั่ง ${seat_type} ระบบได้บันทึกข้อมูลเรียบร้อยครับ` })
 }
 
-const reply = (reply_token) => {
+const reply = (reply_token, msg) => {
     let headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer {xxxxxxx}'
