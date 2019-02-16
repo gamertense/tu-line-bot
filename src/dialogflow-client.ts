@@ -98,6 +98,7 @@ export class DialogflowClient {
         };
         lineMessages.push(message);
       } else if (messageType === 'payload') {
+        console.log(dialogflowMessages[i])
         let payload = get(dialogflowMessages[i], ['payload']);
         payload = structProtoToJson(payload);
         message = get(payload, 'line');
