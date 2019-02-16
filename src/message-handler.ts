@@ -33,12 +33,12 @@ export class MessageHandler {
     console.log("messageText", messageText);
 
     //Chatbase
-    chatbase.newMessage(chatbaseConfig.apiKey) // Your Chatbase API Key
-    .setTimestamp(Date.now().toString())
-    .setUserId(userId)
-    .setPlatform('LINE') // The platform you are interacting with the user over
-    .setAsTypeUser() // The type of message you are sending to chatbase: user (user) or agent (bot)
-    .setMessage(messageText).send();
+    // chatbase.newMessage(chatbaseConfig.apiKey) // Your Chatbase API Key
+    // .setTimestamp(Date.now().toString())
+    // .setUserId(userId)
+    // .setPlatform('LINE') // The platform you are interacting with the user over
+    // .setAsTypeUser() // The type of message you are sending to chatbase: user (user) or agent (bot)
+    // .setMessage(messageText).send();
 
     const lineMessages = await this.dialogflowClient.sendText(userId, messageText);
     console.log("lineMessage", lineMessages);
