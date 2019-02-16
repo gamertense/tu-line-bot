@@ -36,7 +36,7 @@ export class DialogflowClient {
     const messages = await this.getDialogflowMessages(req);
 
     const Intent = new IntentHandler(await this.sessionClient.detectIntent(req))
-    if (Boolean(Intent.getintentName()))
+    if (Intent.getIsIntentMatch())
       return Intent.getLINEMessage();
 
     return this.dialogflowMessagesToLineMessages(messages);
