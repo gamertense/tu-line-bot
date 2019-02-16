@@ -32,7 +32,7 @@ export class DialogflowClient {
       },
     };
     const messages = await this.getDialogflowMessages(req);
-    console.log('Dialogflow Intent: ' + this.getDialogflowIntent(req))
+    console.log('Dialogflow Intent: ' + await this.getDialogflowIntent(req))
     return this.dialogflowMessagesToLineMessages(messages);
   }
 
