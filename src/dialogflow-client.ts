@@ -32,7 +32,7 @@ export class DialogflowClient {
       },
     };
     const messages = await this.getDialogflowMessages(req);
-    console.log(`Dialogflow Intent: ${this.getDialogflowIntent(req)}`)
+    console.log('Dialogflow Intent: ' + this.getDialogflowIntent(req))
     return this.dialogflowMessagesToLineMessages(messages);
   }
 
@@ -119,7 +119,7 @@ export class DialogflowClient {
   private async getDialogflowIntent(req) {
     const res = await this.sessionClient.detectIntent(req);
     const result = get(res, ['0', 'queryResult']);
-    return get(result, ["intent", "displayName"]);
+    return get(result, ['intent', 'displayName']);
   }
 
 }
