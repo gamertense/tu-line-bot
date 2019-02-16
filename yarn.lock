@@ -21,7 +21,7 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@firebase/app-types@0.3.4":
+"@firebase/app-types@0.3.4", "@firebase/app-types@^0.3.4":
   version "0.3.4"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.4.tgz#ea0b9d23c93efb139a90247bf7361b774eb80aeb"
   integrity sha512-XIc1wu7CJ0469STQPwyuokcBGFpRr7BVKKdajj/wAxzNntatDTXo1jdGfmjA8UYcuvW+QJmMkOE9KIOf5HgSzw==
@@ -137,7 +137,7 @@
     "@firebase/storage-types" "0.2.5"
     tslib "1.9.0"
 
-"@firebase/util@0.2.7":
+"@firebase/util@0.2.7", "@firebase/util@^0.2.7":
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.7.tgz#c13818ec5a01ed74586208db58d166f61681c9dc"
   integrity sha512-I6rN6smH1XEXUIDySI2jr4pM8r2tBnE40mANYco2lbzs2D0nk9aiwKp5MTWRAmqRy4WDe7sx9sqs0cFefzsD6A==
@@ -3618,10 +3618,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^2.9.2:
-  version "2.9.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
-  integrity sha512-Gr4p6nFNaoufRIY4NMdpQRNmgxVIGMs4Fcu/ujdYk3nAZqk7supzBE9idmvfZIlH/Cuj//dvi+019qEue9lV0w==
+typescript@^3.3.3:
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.3.3.tgz#f1657fc7daa27e1a8930758ace9ae8da31403221"
+  integrity sha512-Y21Xqe54TBVp+VDSNbuDYdGw0BpoR/Q6wo/+35M8PAU0vipahnyduJWirxxdxjsAkS7hue53x2zp8gz7F05u0A==
 
 union-value@^1.0.0:
   version "1.0.0"

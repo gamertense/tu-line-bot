@@ -1,0 +1,49 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add @firebase/app-types
+
+PATH: 
+  C:\Program Files\Cmder\bin;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Java\jre1.8.0_171\bin;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\ProgramData\chocolatey\bin;C:\Program Files\Java\jdk1.8.0_181\bin;C:\Program Files\PostgreSQL\10\bin;C:\Program Files\PostgreSQL\10\lib;C:\Go\bin;C:\Program Files\nodejs\;C:\Program Files (x86)\Yarn\bin\;C:\Users\gis_bow\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\gis_bow\AppData\Local\Programs\Python\Python37\;C:\Users\gis_bow\AppData\Local\Programs\Python\Launcher\;C:\Users\gis_bow\AppData\Local\Microsoft\WindowsApps;C:\Users\gis_bow\AppData\Local\GitHubDesktop\bin;C:\Users\gis_bow\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\Java\jre1.8.0_171\bin;C:\Program Files\MongoDB\Server\4.0\bin;C:\Users\gis_bow\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\gis_bow\go\bin;C:\Program Files\PostgreSQL\11\bin;C:\Program Files\PostgreSQL\11\lib;C:\Users\gis_bow\AppData\Roaming\npm;C:\Users\gis_bow\AppData\Local\Yarn\bin;C:\Program Files\heroku\bin;C:\Users\gis_bow\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin;C:\Program Files\Git\mingw64;C:\Program Files\Git\usr\bin;C:\Program Files\Cmder
+
+Yarn version: 
+  1.13.0
+
+Node version: 
+  10.15.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: EPERM: operation not permitted, scandir 'C:\Users\gis_bow\Desktop\tu-line-bot\node_modules\@types'
+
+npm manifest: 
+  {
+    "name": "line-dialogflow-middleware",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+      "start": "ts-node --transpileOnly ./src/main.ts",
+      "start-debug": "ts-node ./src/main.ts"
+    },
+    "dependencies": {
+      "@google/chatbase": "^1.1.2",
+      "@line/bot-sdk": "^6.1.0",
+      "dialogflow": "^0.5.0",
+      "dotenv": "^6.0.0",
+      "express": "^4.16.3",
+      "firebase": "^5.8.3",
+      "firebase-admin": "^7.0.0",
+      "lodash": "^4.17.11",
+      "ts-node": "^7.0.0",
+      "tslint": "^5.10.0",
+      "tslint-config-airbnb-base": "^0.1.0",
+      "typescript": "^2.9.2"
+    },
+    "devDependencies": {}
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
