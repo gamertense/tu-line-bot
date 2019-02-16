@@ -2,7 +2,7 @@ import { Message } from '@line/bot-sdk';
 import { get } from 'lodash';
 
 export class IntentHandler {
-    private intentName;
+    private intentName:string;
     private lineMessages: Message[] = [];
 
     constructor(sessionClient, req) {
