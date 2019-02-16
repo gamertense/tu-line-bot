@@ -2,7 +2,8 @@ import { Message } from '@line/bot-sdk';
 import { get } from 'lodash';
 
 export class IntentHandler {
-    private intentName:string;
+    private intentName: string = '';
+    private isIntentMatch: boolean = false
     private lineMessages: Message[] = [];
 
     constructor(res) {
@@ -12,6 +13,7 @@ export class IntentHandler {
 
         switch (this.intentName) {
             case 'voterest - custom - yes':
+                this.isIntentMatch = true;
                 const rest_name = get(result, ["outputContexts", "parameters", "rest_name"]);
                 const point = get(result, ["outputContexts", "parameters", "point"]);
                 console.log(rest_name, point)
@@ -32,8 +34,8 @@ export class IntentHandler {
         return this.lineMessages
     }
 
-    public getintentName() {
-        return this.intentName;
+    public getIsIntentMatch() {
+        return this.isIntentMatch;
     }
 
     private voteRest() {
