@@ -36,7 +36,7 @@ export class IntentHandler {
 
         let linemsg = this.lineMessages
 
-        restaurantRef.where('name', '==', rest_name).get()
+        return restaurantRef.where('name', '==', rest_name).get()
             .then(snapshot => {
                 if (snapshot.empty) {
                     console.log('No matching documents.');
@@ -72,6 +72,7 @@ export class IntentHandler {
                                 text: 'Successfully recorded',
                             };
                             linemsg.push(message);
+                            return;
                         }).catch(function (error) {
                             console.log("Transaction failed: ", error);
                         });
