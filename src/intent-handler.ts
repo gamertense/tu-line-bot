@@ -14,8 +14,8 @@ export class IntentHandler {
         switch (this.intentName) {
             case 'voterest - custom - yes':
                 this.isIntentMatch = true;
-                const rest_name = get(result, ['outputContexts', '0', 'parameters', 'rest_name']);
-                const point = get(result, ['outputContexts', '0', 'parameters', 'point']);
+                const rest_name = get(res, ['queryResult', 'outputContexts', '0', 'parameters', 'rest_name']);
+                const point = get(res, ['queryResult', 'outputContexts', '0', 'parameters', 'point']);
                 console.log(rest_name, point)
                 let message: Message;
 
