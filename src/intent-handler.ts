@@ -31,11 +31,10 @@ export class IntentHandler {
         return this.isIntentMatch;
     }
 
-    private voteRest(result) {
+    private async voteRest(result) {
         const rest_name = get(result, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
         const vote_point = get(result, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
         const restaurantRef = firestoreDB.collection('restaurant');
-        console.log(rest_name, vote_point)
 
         let linemsg = this.lineMessages
 
