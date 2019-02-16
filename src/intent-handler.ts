@@ -9,13 +9,13 @@ export class IntentHandler {
     constructor(res) {
         const result = get(res, ['0', 'queryResult']);
         this.intentName = get(result, ['intent', 'displayName']);
-        console.log(res)
+        console.log(JSON.stringify(res))
 
         switch (this.intentName) {
             case 'voterest - custom - yes':
                 this.isIntentMatch = true;
-                const rest_name = get(res, ['queryResult', 'outputContexts', '0', 'parameters', 'rest_name']);
-                const point = get(res, ['queryResult', 'outputContexts', '0', 'parameters', 'point']);
+                const rest_name = get(result, ['outputContexts', '0', 'parameters', 'rest_name']);
+                const point = get(result, ['outputContexts', '0', 'parameters', 'point']);
                 console.log(rest_name, point)
                 let message: Message;
 
