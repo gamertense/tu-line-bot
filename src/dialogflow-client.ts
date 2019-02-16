@@ -91,7 +91,7 @@ export class DialogflowClient {
     let i = 0;
     // for (let i = 0; i < dialogflowMessages.length; i++) {
     const messageType = get(dialogflowMessages[i], 'message');
-    console.log(`Dialogflow ${dialogflowMessages[i]}`)
+    console.log(`Dialogflow ${JSON.stringify(dialogflowMessages[i])}`)
     let message: Message;
     if (messageType === 'text') {
       message = {
