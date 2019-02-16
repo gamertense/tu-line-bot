@@ -32,6 +32,7 @@ export class DialogflowClient {
       },
     };
     const messages = await this.getDialogflowMessages(req);
+    console.log(`Dialogflow Intent: ${this.getDialogflowIntent(req)}`)
     return this.dialogflowMessagesToLineMessages(messages);
   }
 
@@ -91,7 +92,6 @@ export class DialogflowClient {
     let i = 0;
     // for (let i = 0; i < dialogflowMessages.length; i++) {
     const messageType = get(dialogflowMessages[i], 'message');
-    console.log(`Dialogflow ${JSON.stringify(dialogflowMessages[i])}`)
     let message: Message;
     if (messageType === 'text') {
       message = {
@@ -114,6 +114,12 @@ export class DialogflowClient {
     const res = await this.sessionClient.detectIntent(req);
     const result = get(res, ['0', 'queryResult']);
     return get(result, 'fulfillmentMessages');
+  }
+
+  private async getDialogflowIntent(req) {
+    const res = await this.sessionClient.detectIntent(req);
+    const result = get(res, ['0', 'queryResult']);
+    return get(result, ["intent", "displayName"]);
   }
 
 }
