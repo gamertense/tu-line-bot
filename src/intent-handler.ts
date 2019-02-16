@@ -37,6 +37,8 @@ export class IntentHandler {
         const restaurantRef = firestoreDB.collection('restaurant');
         console.log(rest_name, vote_point)
 
+        let linemsg = this.lineMessages
+
         restaurantRef.where('name', '==', rest_name).get()
             .then(snapshot => {
                 if (snapshot.empty) {
@@ -63,17 +65,16 @@ export class IntentHandler {
                                     numRatings: newNumRatings,
                                     avgRating: newAvgRating
                                 });
-
-                                let message: Message;
-
-                                message = {
-                                    type: 'text',
-                                    text: 'Successfully recorded',
-                                };
-                                this.lineMessages.push(message);
                             })
                         }).then(function () {
                             console.log("Transaction successfully committed!");
+                            let message: Message;
+
+                            message = {
+                                type: 'text',
+                                text: 'Successfully recorded',
+                            };
+                            linemsg.push(message);
                         }).catch(function (error) {
                             console.log("Transaction failed: ", error);
                         });
