@@ -33,7 +33,7 @@ export class IntentHandler {
     }
 
     public getintentName() {
-        return this.getintentName;
+        return this.intentName;
     }
 
     private voteRest() {
