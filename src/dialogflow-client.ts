@@ -87,6 +87,7 @@ export class DialogflowClient {
 
   private dialogflowMessagesToLineMessages(dialogflowMessages) {
     const lineMessages: Message[] = [];
+    console.log(`Dialogflow Messages: ${dialogflowMessages}`)
     for (let i = 0; i < dialogflowMessages.length; i++) {
       const messageType = get(dialogflowMessages[i], 'message');
       console.log(`Message Type: ${messageType}`)
