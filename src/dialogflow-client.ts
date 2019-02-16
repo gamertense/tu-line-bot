@@ -51,7 +51,7 @@ export class DialogflowClient {
     return this.dialogflowMessagesToLineMessages(messages);
   }
 
-  public async listContext(sessionId:string){
+  public async listContext(sessionId: string) {
     const sessionPath = this.contextsClient.sessionPath(this.projectId, sessionId);
     const request = {
       parent: sessionPath
@@ -66,7 +66,7 @@ export class DialogflowClient {
       });
   }
 
-  public async createContext(sessionId:string, AcontextFromFirebase){
+  public async createContext(sessionId: string, AcontextFromFirebase) {
     const sessionPath = this.contextsClient.sessionPath(this.projectId, sessionId);
     console.log("AcontextFromFirebase", AcontextFromFirebase);
     const request = {
@@ -83,29 +83,29 @@ export class DialogflowClient {
         console.error('Failed to create contexts:', err);
       });
   }
-  
+
 
   private dialogflowMessagesToLineMessages(dialogflowMessages) {
     const lineMessages: Message[] = [];
-    console.log(`Dialogflow Messages: ${dialogflowMessages}`)
-    for (let i = 0; i < dialogflowMessages.length; i++) {
-      const messageType = get(dialogflowMessages[i], 'message');
-      console.log(`Message Type: ${messageType}`)
-      let message: Message;
-      if (messageType === 'text') {
-        message = {
-          type: 'text',
-          text: get(dialogflowMessages[i], ['text', 'text', '0']),
-        };
-        lineMessages.push(message);
-      } else if (messageType === 'payload') {
-        console.log(dialogflowMessages[i])
-        let payload = get(dialogflowMessages[i], ['payload']);
-        payload = structProtoToJson(payload);
-        message = get(payload, 'line');
-        lineMessages.push(message);
-      }
+
+    let i = 0;
+    // for (let i = 0; i < dialogflowMessages.length; i++) {
+    const messageType = get(dialogflowMessages[i], 'message');
+    let message: Message;
+    if (messageType === 'text') {
+      message = {
+        type: 'text',
+        text: get(dialogflowMessages[i], ['text', 'text', '0']),
+      };
+      lineMessages.push(message);
+    } else if (messageType === 'payload') {
+      console.log(dialogflowMessages[i])
+      let payload = get(dialogflowMessages[i], ['payload']);
+      payload = structProtoToJson(payload);
+      message = get(payload, 'line');
+      lineMessages.push(message);
     }
+    // }
     return lineMessages;
   }
 
