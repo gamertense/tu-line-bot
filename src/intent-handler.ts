@@ -9,6 +9,7 @@ export class IntentHandler {
         const res = sessionClient.detectIntent(req);
         const result = get(res, ['0', 'queryResult']);
         this.intentName = get(result, ['intent', 'displayName']);
+        console.log(this.intentName)
 
         switch (this.intentName) {
             case 'voterest - custom - yes':
