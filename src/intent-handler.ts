@@ -5,35 +5,33 @@ const firestoreDB = require('../firestore/firestore')
 
 export class IntentHandler {
     private intentName: string = '';
-    private isIntentMatch: boolean = false
     private lineMessages: Message[] = [];
+    private queryResult
 
     constructor(res) {
-        const result = get(res, ['0', 'queryResult']);
-        this.intentName = get(result, ['intent', 'displayName']);
-        console.log(get(result, ['outputContexts', '0', 'parameters']))
-
-        switch (this.intentName) {
-            case 'voterest - custom - yes':
-                this.isIntentMatch = true;
-                this.voteRest(result)
-                break;
-            default:
-                console.log('Case no match')
-        }
+        this.queryResult = get(res, ['0', 'queryResult']);
+        this.intentName = get(this.queryResult, ['intent', 'displayName']);
     }
 
     public getLINEMessage() {
         return this.lineMessages
     }
 
-    public getIsIntentMatch() {
-        return this.isIntentMatch;
+    public async getIsIntentMatch() {
+        let isIntentMatch = false;
+        switch (this.intentName) {
+            case 'voterest - custom - yes':
+                isIntentMatch = true;
+                await this.voteRest()
+                break;
+        }
+
+        return isIntentMatch;
     }
 
-    private async voteRest(result) {
-        const rest_name = get(result, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
-        const vote_point = get(result, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
+    private voteRest() {
+        const rest_name = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
+        const vote_point = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
         const restaurantRef = firestoreDB.collection('restaurant');
 
         let linemsg = this.lineMessages
