@@ -5,6 +5,8 @@ import { Message } from '@line/bot-sdk';
 import { structProtoToJson, jsonToStructProto } from './structjson';
 import { DialogflowConfig } from './types';
 
+import { IntentHandler } from './intent-handler'
+
 export class DialogflowClient {
 
   private readonly sessionClient: any;
@@ -32,8 +34,8 @@ export class DialogflowClient {
       },
     };
     const messages = await this.getDialogflowMessages(req);
-    console.log('Dialogflow Intent: ' + await this.getDialogflowIntent(req))
-    return this.dialogflowMessagesToLineMessages(messages);
+    const intentName = await this.getDialogflowIntent(req);
+    return this.dialogflowMessagesToLineMessages(messages, intentName);
   }
 
   async sendEvent(sessionId: string, name: string, parameters = {}) {
@@ -86,13 +88,18 @@ export class DialogflowClient {
   }
 
 
-  private dialogflowMessagesToLineMessages(dialogflowMessages) {
+  private dialogflowMessagesToLineMessages(dialogflowMessages, intentName) {
     const lineMessages: Message[] = [];
 
     let i = 0;
     // for (let i = 0; i < dialogflowMessages.length; i++) {
     const messageType = get(dialogflowMessages[i], 'message');
     let message: Message;
+
+    const Intent = new IntentHandler(intentName)
+    if (Intent.getIsIntentMatch())
+      return Intent.getLINEMessage();
+
     if (messageType === 'text') {
       message = {
         type: 'text',
@@ -100,7 +107,6 @@ export class DialogflowClient {
       };
       lineMessages.push(message);
     } else if (messageType === 'payload') {
-      console.log(dialogflowMessages[i])
       let payload = get(dialogflowMessages[i], ['payload']);
       payload = structProtoToJson(payload);
       message = get(payload, 'line');
