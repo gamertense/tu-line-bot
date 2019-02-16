@@ -5,8 +5,7 @@ export class IntentHandler {
     private intentName:string;
     private lineMessages: Message[] = [];
 
-    constructor(sessionClient, req) {
-        const res = sessionClient.detectIntent(req);
+    constructor(res) {
         const result = get(res, ['0', 'queryResult']);
         this.intentName = get(result, ['intent', 'displayName']);
         console.log(this.intentName)
