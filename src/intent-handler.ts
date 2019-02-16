@@ -9,7 +9,7 @@ export class IntentHandler {
     constructor(res) {
         const result = get(res, ['0', 'queryResult']);
         this.intentName = get(result, ['intent', 'displayName']);
-        console.log(JSON.stringify(res))
+        console.log(get(result, ['outputContexts', '0', 'parameters']))
 
         switch (this.intentName) {
             case 'voterest - custom - yes':
