@@ -1,19 +1,24 @@
 {
-  "dependencies": {
-    "@firebase/app-types": "^0.3.4",
-    "@firebase/util": "0.x",
-    "body-parser": "^1.18.3",
-    "express": "^4.16.4",
-    "firebase": "^5.8.2",
-    "firebase-admin": "^7.0.0",
-    "request": "^2.88.0"
-  },
-  "name": "tu-line-bot",
-  "scripts": {
-    "start": "node index.js"
-  },
+  "name": "line-dialogflow-middleware",
   "version": "1.0.0",
-  "main": "index.js",
-  "author": "Antonio Jack <ict2jack@gmail.com>",
-  "license": "MIT"
+  "description": "",
+  "scripts": {
+    "start": "ts-node --transpileOnly ./src/main.ts",
+    "start-debug": "ts-node ./src/main.ts"
+  },
+  "dependencies": {
+    "@google/chatbase": "^1.1.2",
+    "@line/bot-sdk": "^6.1.0",
+    "dialogflow": "^0.5.0",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "firebase": "^5.3.0",
+    "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "ts-node": "^7.0.0",
+    "tslint": "^5.10.0",
+    "tslint-config-airbnb-base": "^0.1.0",
+    "typescript": "^2.9.2"
+  }
 }
