@@ -34,8 +34,12 @@ export class DialogflowClient {
       },
     };
     const messages = await this.getDialogflowMessages(req);
-    const intentName = await this.getDialogflowIntent(req);
-    return this.dialogflowMessagesToLineMessages(messages, intentName);
+
+    const Intent = new IntentHandler(this.sessionClient, req)
+    if (Intent.getintentName())
+      return Intent.getLINEMessage();
+
+    return this.dialogflowMessagesToLineMessages(messages);
   }
 
   async sendEvent(sessionId: string, name: string, parameters = {}) {
@@ -52,7 +56,7 @@ export class DialogflowClient {
     };
     const messages = await this.getDialogflowMessages(req);
     const intentName = await this.getDialogflowIntent(req);
-    return this.dialogflowMessagesToLineMessages(messages, intentName);
+    return this.dialogflowMessagesToLineMessages(messages);
   }
 
   public async listContext(sessionId: string) {
@@ -89,17 +93,13 @@ export class DialogflowClient {
   }
 
 
-  private dialogflowMessagesToLineMessages(dialogflowMessages, intentName) {
+  private dialogflowMessagesToLineMessages(dialogflowMessages) {
     const lineMessages: Message[] = [];
 
     let i = 0;
     // for (let i = 0; i < dialogflowMessages.length; i++) {
     const messageType = get(dialogflowMessages[i], 'message');
     let message: Message;
-
-    const Intent = new IntentHandler(intentName)
-    if (Intent.getIsIntentMatch())
-      return Intent.getLINEMessage();
 
     if (messageType === 'text') {
       message = {
@@ -122,11 +122,4 @@ export class DialogflowClient {
     const result = get(res, ['0', 'queryResult']);
     return get(result, 'fulfillmentMessages');
   }
-
-  private async getDialogflowIntent(req) {
-    const res = await this.sessionClient.detectIntent(req);
-    const result = get(res, ['0', 'queryResult']);
-    return get(result, ['intent', 'displayName']);
-  }
-
 }
