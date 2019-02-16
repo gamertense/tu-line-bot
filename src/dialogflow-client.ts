@@ -51,7 +51,8 @@ export class DialogflowClient {
       },
     };
     const messages = await this.getDialogflowMessages(req);
-    return this.dialogflowMessagesToLineMessages(messages);
+    const intentName = await this.getDialogflowIntent(req);
+    return this.dialogflowMessagesToLineMessages(messages, intentName);
   }
 
   public async listContext(sessionId: string) {
