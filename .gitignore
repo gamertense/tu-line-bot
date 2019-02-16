@@ -1,6 +1,1 @@
-.env
-.firebaserc
 node_modules
-lib
-etc
-*.json
