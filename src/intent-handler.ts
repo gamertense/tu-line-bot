@@ -31,6 +31,7 @@ export class IntentHandler {
     }
 
     private async voteRest() {
+        console.log(this.queryResult)
         const rest_name = get(this.queryResult, ['outputContexts', '0', 'fields', 'parameters', 'rest_name']);
         const vote_point = get(this.queryResult, ['outputContexts', '0', 'fields', 'parameters', 'point']);
 
