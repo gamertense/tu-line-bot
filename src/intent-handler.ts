@@ -17,15 +17,16 @@ export class IntentHandler {
         return this.lineMessages
     }
 
-    public async getIsIntentMatch() {
+    public getIsIntentMatch() {
         let isIntentMatch = false;
         switch (this.intentName) {
             case 'voterest - custom - yes':
                 isIntentMatch = true;
-                await this.voteRest()
+                this.voteRest()
                 break;
         }
 
+        console.log(`match ${isIntentMatch}`)
         return isIntentMatch;
     }
 
