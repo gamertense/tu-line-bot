@@ -31,8 +31,8 @@ export class IntentHandler {
     }
 
     private async voteRest() {
-        const rest_name = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name']);
-        const vote_point = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point']);
+        const rest_name = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
+        const vote_point = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
 
         try {
             const restaurantRef = firestoreDB.collection('restaurant');
@@ -66,6 +66,13 @@ export class IntentHandler {
                         });
                     })
                 });
+                const lineMessages: Message[] = [];
+                let message: Message;
+                message = {
+                    type: 'text',
+                    text: 'Your vote is successfully recorded!',
+                };
+                lineMessages.push(message);
             }
         } catch (err) {
             console.log('Error getting document', err);
