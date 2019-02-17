@@ -29,58 +29,45 @@ export class IntentHandler {
         return isIntentMatch;
     }
 
-    private voteRest() {
-        const rest_name = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
-        const vote_point = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
-        const restaurantRef = firestoreDB.collection('restaurant');
+    private async voteRest() {
+        const rest_name = 'Hotto Bun';
+        const vote_point = 4.3;
 
-        let linemsg = this.lineMessages
+        try {
+            const restaurantRef = firestoreDB.collection('restaurant');
+            const snapshot = await restaurantRef.where('name', '==', rest_name).get()
 
-        return restaurantRef.where('name', '==', rest_name).get()
-            .then(snapshot => {
-                if (snapshot.empty) {
-                    console.log('No matching documents.');
-                } else {
-                    snapshot.forEach(doc => {
-                        return firestoreDB.runTransaction(transaction => {
-                            return transaction.get(restaurantRef.doc(doc.id)).then(res => {
-                                if (!res.exists) {
-                                    throw "Document does not exist!";
-                                }
+            if (snapshot.empty) {
+                console.log('No matching documents.');
+            } else {
+                snapshot.forEach(async doc => {
+                    await firestoreDB.runTransaction(async transaction => {
+                        const res = await transaction.get(restaurantRef.doc(doc.id));
 
-                                // Compute new number of ratings
-                                let newNumRatings = res.data().numRatings + 1;
+                        if (!res.exists) {
+                            throw "Document does not exist!";
+                        }
 
-                                // Compute new average rating
-                                let oldRatingTotal = res.data().avgRating * res.data().numRatings;
-                                let newAvgRating = (oldRatingTotal + vote_point) / newNumRatings;
-                                // Limit to two decimal places
-                                newAvgRating = parseFloat(newAvgRating.toFixed(2))
+                        // Compute new number of ratings
+                        let newNumRatings = res.data().numRatings + 1;
+                        console.log(newNumRatings)
 
-                                // Commit to Firestore
-                                transaction.update(restaurantRef.doc(doc.id), {
-                                    numRatings: newNumRatings,
-                                    avgRating: newAvgRating
-                                });
-                            })
-                        }).then(function () {
-                            console.log("Transaction successfully committed!");
-                            let message: Message;
+                        // Compute new average rating
+                        let oldRatingTotal = res.data().avgRating * res.data().numRatings;
+                        let newAvgRating = (oldRatingTotal + vote_point) / newNumRatings;
+                        // Limit to two decimal places
+                        newAvgRating = parseFloat(newAvgRating.toFixed(2))
 
-                            message = {
-                                type: 'text',
-                                text: 'Successfully recorded',
-                            };
-                            linemsg.push(message);
-                            return;
-                        }).catch(function (error) {
-                            console.log("Transaction failed: ", error);
+                        // Commit to Firestore
+                        transaction.update(restaurantRef.doc(doc.id), {
+                            numRatings: newNumRatings,
+                            avgRating: newAvgRating
                         });
-                    });
-                }
-            })
-            .catch(err => {
-                console.log('Error getting document', err);
-            });
+                    })
+                });
+            }
+        } catch (err) {
+            console.log('Error getting document', err);
+        }
     }
 }
