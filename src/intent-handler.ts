@@ -31,8 +31,8 @@ export class IntentHandler {
     }
 
     private async voteRest() {
-        const rest_name = 'Hotto Bun';
-        const vote_point = 4.3;
+        const rest_name = get(this.queryResult, ['outputContexts', '0', 'fields', 'parameters', 'rest_name']);
+        const vote_point = get(this.queryResult, ['outputContexts', '0', 'fields', 'parameters', 'point']);
 
         try {
             const restaurantRef = firestoreDB.collection('restaurant');
