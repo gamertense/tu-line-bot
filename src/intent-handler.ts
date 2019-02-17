@@ -66,13 +66,12 @@ export class IntentHandler {
                         });
                     })
                 });
-                const lineMessages: Message[] = [];
                 let message: Message;
                 message = {
                     type: 'text',
                     text: 'Your vote is successfully recorded!',
                 };
-                lineMessages.push(message);
+                this.lineMessages.push(message);
             }
         } catch (err) {
             console.log('Error getting document', err);
