@@ -64,13 +64,14 @@ export class IntentHandler {
                             numRatings: newNumRatings,
                             avgRating: newAvgRating
                         });
+
+                        let message: Message;
+                        message = {
+                            type: 'text',
+                            text: 'Your vote is successfully recorded!',
+                        };
+                        this.lineMessages.push(message);
                     })
-                    let message: Message;
-                    message = {
-                        type: 'text',
-                        text: 'Your vote is successfully recorded!',
-                    };
-                    this.lineMessages.push(message);
                 });
             }
         } catch (err) {
