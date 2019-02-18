@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import { Message, FlexCarousel, FlexBubble } from '@line/bot-sdk';
+import { Message, FlexMessage, FlexCarousel, FlexBubble } from '@line/bot-sdk';
 const firestoreDB = require('../firestore/firestore')
 
 export const getIsIntentMatch = (res) => {
@@ -43,7 +43,12 @@ const popularRest = async (lineMessages) => {
         });
 
         const carouselMsg: FlexCarousel = { type: "carousel", contents: contentsArray };
-        lineMessages.push(carouselMsg)
+        const flexMsg: FlexMessage = {
+            "type": "flex",
+            "altText": "This is a Flex Message",
+            "contents": carouselMsg
+        }
+        lineMessages.push(flexMsg)
         return lineMessages;
     }
 
