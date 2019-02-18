@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import { Message } from '@line/bot-sdk';
+import { Message, FlexCarousel, FlexBubble } from '@line/bot-sdk';
 const firestoreDB = require('../firestore/firestore')
 
 export const getIsIntentMatch = (res) => {
@@ -23,24 +23,37 @@ const popularRest = async (lineMessages) => {
 
     try {
         if (snapshot.empty) {
-            console.log('No matching documents.');
-            return;
+            let message: Message;
+            message = {
+                type: 'text',
+                text: 'Unable to find documents which have avgRating >= 4',
+            };
+            lineMessages.push(message);
+            return lineMessages
         }
 
+        let contentsArray: FlexBubble[] = [];
         snapshot.forEach(doc => {
-            let restaurant_template = require('../line_template/restaurant.json');
-            let obj = JSON.parse(JSON.stringify(restaurant_template));
-            obj.hero.url = doc.data().image_url;
-            obj.body.contents[0].text = doc.data().name;
-            obj.body.contents[1].contents[5].text = doc.data().avgRating.toString();
-            obj.body.contents[2].contents[0].contents[1].text = doc.data().place;
-            lineMessages.push(obj);
+            let contentObj = JSON.parse(JSON.stringify(require('../line_template/restaurant.json')));
+            contentObj.hero.url = doc.data().image_url;
+            contentObj.body.contents[0].text = doc.data().name;
+            contentObj.body.contents[1].contents[5].text = doc.data().avgRating.toString();
+            contentObj.body.contents[2].contents[0].contents[1].text = doc.data().place;
+            contentsArray.push(contentObj)
         });
-        return lineMessages
+
+        const carouselMsg: FlexCarousel = { type: "carousel", contents: contentsArray };
+        return carouselMsg;
     }
 
     catch (err) {
-        console.log('Error getting documents', err);
+        let message: Message;
+        message = {
+            type: 'text',
+            text: 'Error getting documents',
+        };
+        lineMessages.push(message);
+        return lineMessages
     };
 }
 
