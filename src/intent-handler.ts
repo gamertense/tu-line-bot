@@ -43,7 +43,8 @@ const popularRest = async (lineMessages) => {
         });
 
         const carouselMsg: FlexCarousel = { type: "carousel", contents: contentsArray };
-        return carouselMsg;
+        lineMessages.push(carouselMsg)
+        return lineMessages;
     }
 
     catch (err) {
