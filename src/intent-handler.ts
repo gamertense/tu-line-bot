@@ -5,16 +5,46 @@ const firestoreDB = require('../firestore/firestore')
 export const getIsIntentMatch = (res) => {
     const queryResult = get(res, ['0', 'queryResult']);
     const intentName = get(queryResult, ['intent', 'displayName']);
+    let lineMessages: Message[] = [];
 
     switch (intentName) {
         case 'voterest - custom - yes':
-            return voteRest(queryResult)
+            return voteRest(queryResult, lineMessages)
+        case 'Popular restaurant':
+            return popularRest(lineMessages)
         default:
             return null
     }
 }
 
-const voteRest = async (queryResult) => {
+const popularRest = (lineMessages) => {
+    let resRef = firestoreDB.collection('restaurants');
+    // Create a query against the collection
+    resRef.where('rating', '>=', 4).get()
+        .then(snapshot => {
+            if (snapshot.empty) {
+                console.log('No matching documents.');
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                let restaurant_template = require('../line_template/restaurant.json');
+                let obj = JSON.parse(JSON.stringify(restaurant_template));
+                obj.hero.url = doc.data().image_url;
+                obj.body.contents[0].text = doc.data().name;
+                obj.body.contents[1].contents[5].text = doc.data().rating.toString();
+                obj.body.contents[2].contents[0].contents[1].text = doc.data().place;
+                lineMessages.push(obj);
+
+                return lineMessages
+            });
+        })
+        .catch(err => {
+            console.log('Error getting documents', err);
+        });
+}
+
+const voteRest = async (queryResult, lineMessages) => {
     const rest_name = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
     const vote_point = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
 
@@ -49,7 +79,6 @@ const voteRest = async (queryResult) => {
                     });
                 })
             });
-            let lineMessages: Message[] = [];
             let message: Message;
             message = {
                 type: 'text',
