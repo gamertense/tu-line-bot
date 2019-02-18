@@ -5,7 +5,7 @@ import { Message } from '@line/bot-sdk';
 import { structProtoToJson, jsonToStructProto } from './structjson';
 import { DialogflowConfig } from './types';
 
-import { IntentHandler } from './intent-handler'
+import { getIsIntentMatch } from './intent-handler'
 
 export class DialogflowClient {
 
@@ -33,12 +33,11 @@ export class DialogflowClient {
         },
       },
     };
-    const messages = await this.getDialogflowMessages(req);
+    let messages = await getIsIntentMatch(await this.sessionClient.detectIntent(req))
+    if (messages)
+      return messages
 
-    const Intent = new IntentHandler(await this.sessionClient.detectIntent(req))
-    if (Intent.getIsIntentMatch())
-      return Intent.getLINEMessage();
-
+    messages = await this.getDialogflowMessages(req);
     return this.dialogflowMessagesToLineMessages(messages);
   }
 
