@@ -34,7 +34,6 @@ export class DialogflowClient {
       },
     };
     let messages = await getIsIntentMatch(await this.sessionClient.detectIntent(req))
-    console.log('TCL: DialogflowClient -> publicsendText -> messages', messages)
     
     if (messages)
       return messages
