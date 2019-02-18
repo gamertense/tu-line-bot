@@ -17,10 +17,10 @@ export const getIsIntentMatch = (res) => {
     }
 }
 
-const popularRest = (lineMessages) => {
-    let resRef = firestoreDB.collection('restaurants');
+const popularRest = async (lineMessages) => {
+    const resRef = firestoreDB.collection('restaurants');
     // Create a query against the collection
-    resRef.where('rating', '>=', 4).get()
+    await resRef.where('rating', '>=', 4).get()
         .then(snapshot => {
             if (snapshot.empty) {
                 console.log('No matching documents.');
