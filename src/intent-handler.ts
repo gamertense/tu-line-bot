@@ -1,18 +1,22 @@
+import { get } from 'lodash';
 import { Message } from '@line/bot-sdk';
 const firestoreDB = require('../firestore/firestore')
 
-export const getIsIntentMatch = (intentName: string) => {
+export const getIsIntentMatch = (res) => {
+    const queryResult = get(res, ['0', 'queryResult']);
+    const intentName = get(queryResult, ['intent', 'displayName']);
+
     switch (intentName) {
         case 'voterest - custom - yes':
-            return voteRest()
+            return voteRest(queryResult)
         default:
             return null
     }
 }
 
-const voteRest = async () => {
-    const rest_name = 'Hotto Bun';
-    const vote_point = 4.3;
+const voteRest = async (queryResult) => {
+    const rest_name = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
+    const vote_point = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
 
     try {
         const restaurantRef = firestoreDB.collection('restaurant');
