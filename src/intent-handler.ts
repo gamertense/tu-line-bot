@@ -18,30 +18,30 @@ export const getIsIntentMatch = (res) => {
 }
 
 const popularRest = async (lineMessages) => {
-    const resRef = firestoreDB.collection('restaurants');
-    // Create a query against the collection
-    await resRef.where('rating', '>=', 4).get()
-        .then(snapshot => {
-            if (snapshot.empty) {
-                console.log('No matching documents.');
-                return;
-            }
+    const resRef = firestoreDB.collection('restaurant');
+    const snapshot = await resRef.where('avgRating', '>=', 4).get()
 
-            snapshot.forEach(doc => {
-                let restaurant_template = require('../line_template/restaurant.json');
-                let obj = JSON.parse(JSON.stringify(restaurant_template));
-                obj.hero.url = doc.data().image_url;
-                obj.body.contents[0].text = doc.data().name;
-                obj.body.contents[1].contents[5].text = doc.data().rating.toString();
-                obj.body.contents[2].contents[0].contents[1].text = doc.data().place;
-                lineMessages.push(obj);
+    try {
+        if (snapshot.empty) {
+            console.log('No matching documents.');
+            return;
+        }
 
-                return lineMessages
-            });
-        })
-        .catch(err => {
-            console.log('Error getting documents', err);
+        snapshot.forEach(doc => {
+            let restaurant_template = require('../line_template/restaurant.json');
+            let obj = JSON.parse(JSON.stringify(restaurant_template));
+            obj.hero.url = doc.data().image_url;
+            obj.body.contents[0].text = doc.data().name;
+            obj.body.contents[1].contents[5].text = doc.data().avgRating.toString();
+            obj.body.contents[2].contents[0].contents[1].text = doc.data().place;
+            lineMessages.push(obj);
         });
+        return lineMessages
+    }
+
+    catch (err) {
+        console.log('Error getting documents', err);
+    };
 }
 
 const voteRest = async (queryResult, lineMessages) => {
