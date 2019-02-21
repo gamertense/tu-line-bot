@@ -33,8 +33,9 @@ export class DialogflowClient {
         },
       },
     };
+
+    // If intent is matched, get response message from intent-handler.ts
     let messages = await getIsIntentMatch(await this.sessionClient.detectIntent(req))
-    
     if (messages)
       return messages
 
