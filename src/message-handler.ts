@@ -12,7 +12,8 @@ import {
 
 import { LINE_VERIFY_TOKEN, chatbaseConfig } from './config';
 import { DialogflowClient } from './dialogflow-client';
-import chatbase from '@google/chatbase';
+
+import intentHandler from './intent-handler';
 
 export class MessageHandler {
 
@@ -75,7 +76,8 @@ export class MessageHandler {
     const message: LocationEventMessage = get(event, 'message');
     // tslint:disable-next-line:no-console
     console.log(`Handle Location: ${JSON.stringify(message)}`);
-    return this.lineClient.replyMessage(replyToken, [ { type: 'text', text: 'อ๋า พี่อยู่ที่นี่หรอ เดี๋ยวหนูไปเข้าฝันนะ' }]);
+    const textRes = intentHandler.getClosestBusStop(message);
+    return this.lineClient.replyMessage(replyToken, [ { type: 'text', text: textRes }]);
   }
 
   async handleSticker(event: MessageEvent) {

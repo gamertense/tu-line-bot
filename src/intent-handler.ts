@@ -1,6 +1,11 @@
 import { get } from 'lodash';
 import { Message, FlexMessage, FlexCarousel, FlexBubble } from '@line/bot-sdk';
+
+// Cloud Firestore and geofirestore
 const firestoreDB = require('../firestore/firestore')
+import * as firebase from 'firebase/app';
+import 'firebase/firestore';
+import { GeoCollectionReference, GeoFirestore, GeoQuery, GeoQuerySnapshot } from 'geofirestore';
 
 export const getIsIntentMatch = (res) => {
     const queryResult = get(res, ['0', 'queryResult']);
@@ -14,6 +19,37 @@ export const getIsIntentMatch = (res) => {
             return popularRest(lineMessages)
         default:
             return null
+    }
+}
+
+export const getClosestBusStop = async (message) => {
+    // Create a GeoFirestore reference
+    const geofirestore: GeoFirestore = new GeoFirestore(firestoreDB);
+
+    // Create a GeoCollection reference
+    const geoCollectionRef = geofirestore.collection('bus-stops');
+
+    // Create a GeoQuery based on a location
+    const userLocation = [get(message, ['latitude']), get(message, ['longitude'])]
+    const query: GeoQuery = geoCollectionRef.near({ center: new firebase.firestore.GeoPoint(userLocation[0], userLocation[1]), radius: 0.1 });
+
+    // Get query (as Promise)
+    const busStop = await query.get();
+    const busStopID = get(busStop.docs, ['0', 'id'])
+    console.log('TCL: getBusStop -> busStopID', busStopID)
+
+    const fs = require('fs');
+    fs.writeFileSync('./myjsonfile.json', JSON.stringify(busStop.docs));
+
+    const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID)
+    const busDoc = await busDocRef.get()
+
+    if (!busDoc.exists) {
+        return `Error getting the nearest bus stop`;
+    } else {
+        const busInfo = get(busDoc.data(), ['d', 'info'])
+        const busLine = get(busDoc.data(), ['d', 'line'])
+        return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} และคือสาย ${busLine}`;
     }
 }
 
