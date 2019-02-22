@@ -5,7 +5,7 @@ import { Message, FlexMessage, FlexCarousel, FlexBubble } from '@line/bot-sdk';
 const firestoreDB = require('../firestore/firestore')
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
-import { GeoCollectionReference, GeoFirestore, GeoQuery, GeoQuerySnapshot } from 'geofirestore';
+import { GeoFirestore, GeoQuery } from 'geofirestore';
 
 export const getIsIntentMatch = (res) => {
     const queryResult = get(res, ['0', 'queryResult']);
@@ -35,21 +35,21 @@ export const getClosestBusStop = async (message) => {
 
     const busStop = await query.get();
     busStop.docs.sort((a, b) => (a.distance > b.distance) ? 1 : -1)
-    const distance = loda.get(busStop.docs, ['0', 'distance'])
-    const busStopID = loda.get(busStop.docs, ['0', 'id'])
+    const distance = get(busStop.docs, ['0', 'distance'])
+    const busStopID = get(busStop.docs, ['0', 'id'])
     console.log('TCL: getBusStop -> busStopID', busStopID)
 
     const fs = require('fs');
     fs.writeFileSync('./myjsonfile.json', JSON.stringify(busStop.docs));
 
-    const busDocRef = db.collection('bus-stops').doc(busStopID)
+    const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID)
     const busDoc = await busDocRef.get()
 
     if (!busDoc.exists) {
         console.log('No such document!');
     } else {
-        const busInfo = loda.get(busDoc.data(), ['d', 'info'])
-        const busLine = loda.get(busDoc.data(), ['d', 'line'])
+        const busInfo = get(busDoc.data(), ['d', 'info'])
+        const busLine = get(busDoc.data(), ['d', 'line'])
         console.log(`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${distance} เมตรและคือสาย ${busLine}`);
     }
 }
