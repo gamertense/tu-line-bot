@@ -33,20 +33,24 @@ export const getClosestBusStop = async (message) => {
     const userLocation = [get(message, ['latitude']), get(message, ['longitude'])]
     const query: GeoQuery = geoCollectionRef.near({ center: new firebase.firestore.GeoPoint(userLocation[0], userLocation[1]), radius: 0.1 });
 
-    // Get query (as Promise)
     const busStop = await query.get();
-    const busStopID = get(busStop.docs, ['0', 'id'])
+    busStop.docs.sort((a, b) => (a.distance > b.distance) ? 1 : -1)
+    const distance = loda.get(busStop.docs, ['0', 'distance'])
+    const busStopID = loda.get(busStop.docs, ['0', 'id'])
     console.log('TCL: getBusStop -> busStopID', busStopID)
 
-    const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID)
+    const fs = require('fs');
+    fs.writeFileSync('./myjsonfile.json', JSON.stringify(busStop.docs));
+
+    const busDocRef = db.collection('bus-stops').doc(busStopID)
     const busDoc = await busDocRef.get()
 
     if (!busDoc.exists) {
-        return `Error getting the nearest bus stop`;
+        console.log('No such document!');
     } else {
-        const busInfo = get(busDoc.data(), ['d', 'info'])
-        const busLine = get(busDoc.data(), ['d', 'line'])
-        return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} และคือสาย ${busLine}`;
+        const busInfo = loda.get(busDoc.data(), ['d', 'info'])
+        const busLine = loda.get(busDoc.data(), ['d', 'line'])
+        console.log(`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${distance} เมตรและคือสาย ${busLine}`);
     }
 }
 
