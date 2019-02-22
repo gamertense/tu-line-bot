@@ -13,7 +13,7 @@ import {
 import { LINE_VERIFY_TOKEN, chatbaseConfig } from './config';
 import { DialogflowClient } from './dialogflow-client';
 
-import intentHandler from './intent-handler';
+import { getClosestBusStop } from './intent-handler';
 
 export class MessageHandler {
 
@@ -43,7 +43,7 @@ export class MessageHandler {
 
     const lineMessages = await this.dialogflowClient.sendText(userId, messageText);
     console.log("lineMessage", lineMessages);
-    const cleaned = lineMessages.filter((x)=>x!=null);
+    const cleaned = lineMessages.filter((x) => x != null);
     return this.lineClient.replyMessage(replyToken, cleaned);
   }
 
@@ -52,7 +52,7 @@ export class MessageHandler {
     const message: ImageEventMessage = get(event, 'message');
     // tslint:disable-next-line:no-console
     console.log(`Handle Image: ${JSON.stringify(message)}`);
-    return this.lineClient.replyMessage(replyToken, [ { type: 'text', text: 'ว้าว รูปสวยจัง' }]);
+    return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: 'ว้าว รูปสวยจัง' }]);
   }
 
   async handleVideo(event: MessageEvent) {
@@ -60,7 +60,7 @@ export class MessageHandler {
     const message: VideoEventMessage = get(event, 'message');
     // tslint:disable-next-line:no-console
     console.log(`Handle Video: ${JSON.stringify(message)}`);
-    return this.lineClient.replyMessage(replyToken, [ { type: 'text', text: 'วีดีโอ น่าสนใจมากค่ะ' }]);
+    return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: 'วีดีโอ น่าสนใจมากค่ะ' }]);
   }
 
   async handleAudio(event: MessageEvent) {
@@ -68,7 +68,7 @@ export class MessageHandler {
     const message: AudioEventMessage = get(event, 'message');
     // tslint:disable-next-line:no-console
     console.log(`Handle Audio: ${JSON.stringify(message)}`);
-    return this.lineClient.replyMessage(replyToken, [ { type: 'text', text: 'เสียงพี่เพราะจัง' }]);
+    return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: 'เสียงพี่เพราะจัง' }]);
   }
 
   async handleLocation(event: MessageEvent) {
@@ -76,8 +76,8 @@ export class MessageHandler {
     const message: LocationEventMessage = get(event, 'message');
     // tslint:disable-next-line:no-console
     console.log(`Handle Location: ${JSON.stringify(message)}`);
-    const textRes = intentHandler.getClosestBusStop(message);
-    return this.lineClient.replyMessage(replyToken, [ { type: 'text', text: textRes }]);
+    const textRes = await getClosestBusStop(message);
+    return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
   }
 
   async handleSticker(event: MessageEvent) {
@@ -85,8 +85,8 @@ export class MessageHandler {
     let message: StickerEventMessage = get(event, 'message');
     // tslint:disable-next-line:no-console
     console.log(`Handle Sticker: ${JSON.stringify(message)}`);
-    if (message.packageId != '1'){
-      message = {"type":"sticker","stickerId":"13","packageId":"1"};
+    if (message.packageId != '1') {
+      message = { "type": "sticker", "stickerId": "13", "packageId": "1" };
     }
     return this.lineClient.replyMessage(replyToken, [message]);
   }
