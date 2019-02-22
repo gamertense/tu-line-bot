@@ -38,9 +38,6 @@ export const getClosestBusStop = async (message) => {
     const busStopID = get(busStop.docs, ['0', 'id'])
     console.log('TCL: getBusStop -> busStopID', busStopID)
 
-    const fs = require('fs');
-    fs.writeFileSync('./myjsonfile.json', JSON.stringify(busStop.docs));
-
     const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID)
     const busDoc = await busDocRef.get()
 
