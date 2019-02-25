@@ -15,7 +15,7 @@ export const getIsIntentMatch = (res) => {
     switch (intentName) {
         case 'Vote restaurant':
             return popularRest(lineMessages, 'vote')
-        case 'Vote restaurant - yes':
+        case 'Vote restaurant - name - score - yes':
             return voteRest(queryResult, lineMessages)
         case 'Popular restaurant':
             return popularRest(lineMessages, 'popular')
