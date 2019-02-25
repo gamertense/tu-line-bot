@@ -112,16 +112,21 @@ const popularRest = async (lineMessages, action) => {
 }
 
 const voteRest = async (queryResult, lineMessages) => {
-    console.log('TCL: voteRest -> queryResult', JSON.stringify(get(queryResult, ['outputContexts', '0'])));
     const rest_name = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
     const vote_point = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
+    let message: Message; // A LINE response message
 
     try {
         const restaurantRef = firestoreDB.collection('restaurant');
         const snapshot = await restaurantRef.where('name', '==', rest_name).get()
 
         if (snapshot.empty) {
-            return 'No matching documents.';
+            message = {
+                type: 'text',
+                text: 'Unable to find the restaurant in database!',
+            };
+            lineMessages.push(message);
+            return lineMessages;
         } else {
             snapshot.forEach(async doc => {
                 await firestoreDB.runTransaction(async transaction => {
@@ -147,7 +152,7 @@ const voteRest = async (queryResult, lineMessages) => {
                     });
                 })
             });
-            let message: Message;
+
             message = {
                 type: 'text',
                 text: 'Your vote is successfully recorded!',
