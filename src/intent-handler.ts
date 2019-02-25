@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { set, get } from 'lodash';
 import { Message, FlexMessage, FlexCarousel, FlexBubble } from '@line/bot-sdk';
 
 // Cloud Firestore and geofirestore
@@ -13,10 +13,12 @@ export const getIsIntentMatch = (res) => {
     let lineMessages: Message[] = [];
 
     switch (intentName) {
+        case 'Vote restaurant':
+            return popularRest(lineMessages, 'vote')
         case 'voterest - custom - yes':
             return voteRest(queryResult, lineMessages)
         case 'Popular restaurant':
-            return popularRest(lineMessages)
+            return popularRest(lineMessages, 'popular')
         default:
             return null
     }
@@ -54,9 +56,13 @@ export const getClosestBusStop = async (message) => {
     }
 }
 
-const popularRest = async (lineMessages) => {
+const popularRest = async (lineMessages, action) => {
     const resRef = firestoreDB.collection('restaurant');
-    const snapshot = await resRef.where('avgRating', '>=', 4).get()
+    let snapshot;
+    if (action === 'vote')
+        snapshot = await resRef.get();
+    else
+        snapshot = await resRef.where('avgRating', '>=', 4).get()
 
     try {
         if (snapshot.empty) {
@@ -76,6 +82,11 @@ const popularRest = async (lineMessages) => {
             contentObj.body.contents[0].text = doc.data().name;
             contentObj.body.contents[1].contents[5].text = doc.data().avgRating.toString();
             contentObj.body.contents[2].contents[0].contents[1].text = doc.data().place;
+
+            if (action === 'vote') {
+                set(contentObj, 'footer.contents[0].action.label', 'Vote')
+                set(contentObj, 'footer.contents[0].action.text', `โหวต ${doc.data().name}`)
+            }
             contentsArray.push(contentObj)
         });
 
