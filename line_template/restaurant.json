@@ -100,9 +100,9 @@
                 "type": "button",
                 "style": "primary",
                 "action": {
-                    "type": "uri",
+                    "type": "message",
                     "label": "Go",
-                    "uri": "https://linecorp.com"
+                    "text": "ไปโรงอาหารตึกสังคมศาสตร์"
                 }
             }
         ]
