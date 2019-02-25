@@ -112,7 +112,7 @@ const popularRest = async (lineMessages, action) => {
 }
 
 const voteRest = async (queryResult, lineMessages) => {
-    console.log('TCL: voteRest -> queryResult', get(queryResult, ['outputContexts', '0']));
+    console.log('TCL: voteRest -> queryResult', JSON.stringify(get(queryResult, ['outputContexts', '0'])));
     const rest_name = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
     const vote_point = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
 
