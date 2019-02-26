@@ -37,13 +37,9 @@ export const getClosestBusStop = async (message) => {
 
     const busStop = await query.get();
     busStop.docs.sort((a, b) => (a.distance > b.distance) ? 1 : -1)
+    
     const distance = get(busStop.docs, ['0', 'distance'])
     const busStopID = get(busStop.docs, ['0', 'id'])
-    console.log('TCL: getBusStop -> busStopID', busStopID)
-
-    const fs = require('fs');
-    fs.writeFileSync('./myjsonfile.json', JSON.stringify(busStop.docs));
-
     const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID)
     const busDoc = await busDocRef.get()
 
@@ -52,7 +48,8 @@ export const getClosestBusStop = async (message) => {
     } else {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
-        console.log(`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${distance} เมตรและคือสาย ${busLine}`);
+        console.log(`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${parseInt(distance)} เมตรและคือสาย ${busLine}`);
+        return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${parseInt(distance)} เมตรและคือสาย ${busLine}`;
     }
 }
 
