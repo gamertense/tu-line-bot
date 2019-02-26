@@ -50,7 +50,7 @@ export const getClosestBusStop = async (message) => {
     } else {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
-        console.log(`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${parseInt(distance)} เมตรและคือสาย ${busLine}`);
+        console.log(`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${distance} เมตรและคือสาย ${busLine}`);
         return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${parseInt(distance)*1000} เมตรและคือสาย ${busLine}`;
     }
 }
