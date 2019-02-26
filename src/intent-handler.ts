@@ -35,9 +35,11 @@ export const getClosestBusStop = async (message) => {
     const userLocation = [get(message, ['latitude']), get(message, ['longitude'])]
     const query: GeoQuery = geoCollectionRef.near({ center: new firebase.firestore.GeoPoint(userLocation[0], userLocation[1]), radius: 0.1 });
 
+    // Get the closest bus stop
     const busStop = await query.get();
+    // Sort docs since the closest one may be at index 2.
     busStop.docs.sort((a, b) => (a.distance > b.distance) ? 1 : -1)
-    
+
     const distance = get(busStop.docs, ['0', 'distance'])
     const busStopID = get(busStop.docs, ['0', 'id'])
     const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID)
@@ -49,7 +51,7 @@ export const getClosestBusStop = async (message) => {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
         console.log(`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${parseInt(distance)} เมตรและคือสาย ${busLine}`);
-        return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${parseInt(distance)} เมตรและคือสาย ${busLine}`;
+        return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${parseInt(distance)*1000} เมตรและคือสาย ${busLine}`;
     }
 }
 
