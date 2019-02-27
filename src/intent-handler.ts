@@ -50,7 +50,7 @@ export const getClosestBusStop = async (message) => {
     } else {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
-        return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM*1000).toFixed(2)} เมตรและคือสาย ${busLine}`;
+        return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`;
     }
 }
 
@@ -76,10 +76,10 @@ const popularRest = async (lineMessages, action) => {
         let contentsArray: FlexBubble[] = [];
         snapshot.forEach(doc => {
             let contentObj = JSON.parse(JSON.stringify(require('../line_template/restaurant.json')));
-            contentObj.hero.url = doc.data().image_url;
-            contentObj.body.contents[0].text = doc.data().name;
-            contentObj.body.contents[1].contents[5].text = doc.data().avgRating.toString();
-            contentObj.body.contents[2].contents[0].contents[1].text = doc.data().place;
+            set(contentObj, 'hero.url', doc.data().image_url)
+            set(contentObj, 'body.contents[0].text', doc.data().name)
+            set(contentObj, 'body.contents[1].contents[5].text', doc.data().avgRating.toString())
+            set(contentObj, 'body.contents[2].contents[0].contents[1].text', doc.data().place)
 
             if (action === 'vote') {
                 set(contentObj, 'footer.contents[0].action.label', 'Vote')
