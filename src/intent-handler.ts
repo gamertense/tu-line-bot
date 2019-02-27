@@ -46,7 +46,7 @@ export const getClosestBusStop = async (message) => {
     const busDoc = await busDocRef.get()
 
     if (!busDoc.exists) {
-        console.log('No such document!');
+        return 'Unable to find the closest bus stop.'
     } else {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
