@@ -14,8 +14,7 @@ export const getIsIntentMatch = (res) => {
 
     switch (intentName) {
         case 'TU-places - yes':
-            tuPlace(queryResult, lineMessages)
-            return
+            return tuPlace(queryResult, lineMessages)
         case 'Vote restaurant': // User supplied restaurant name, but yet not sore.
             return popularRest(lineMessages, 'vote') // User supplied name & score.
         case 'Vote restaurant - name - score - yes':
