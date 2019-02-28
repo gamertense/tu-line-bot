@@ -57,18 +57,17 @@ export const getClosestBusStop = async (message) => {
 
 const tuPlace = async (queryResult) => {
     const queryPlace = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
-	console.log('TCL: tuPlace -> queryPlace', queryPlace)
+    console.log('TCL: tuPlace -> queryPlace', queryPlace)
     const placeRef = firestoreDB.collection('places');
     const snapshot = await placeRef.get();
     let lineMessages: Message[] = [];
-    let message: Message;
+    let message: Message = {
+        type: 'text',
+        text: 'No docs in collection.',
+    };
 
     try {
         if (snapshot.empty) {
-            message = {
-                type: 'text',
-                text: 'No docs in collection.',
-            };
             lineMessages.push(message);
             return lineMessages
         }
@@ -76,21 +75,18 @@ const tuPlace = async (queryResult) => {
         snapshot.forEach((doc) => {
             const placeFromDoc = get(doc.data(), 'd.name').toLowerCase();
             if (placeFromDoc.includes(queryPlace)) {
-                message = {
-                    type: 'text',
-                    text: `สายรถ NGV ที่ผ่านสถานที่นั้นคือ ${get(doc.data(), 'd.line')}`
-                };
+                set(message, 'text', `สายรถ NGV ที่ผ่านสถานที่นั้นคือ ${get(doc.data(), 'd.line')}`)
                 lineMessages.push(message);
                 return lineMessages
             }
         });
-
+        
+        set(message, 'text', 'Unable to find that place')
+        lineMessages.push(message);
+        return lineMessages
 
     } catch (err) {
-        message = {
-            type: 'text',
-            text: err.message,
-        };
+        set(message, 'text', err.message)
         lineMessages.push(message);
         return lineMessages
     }
