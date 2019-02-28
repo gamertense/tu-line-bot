@@ -7,22 +7,20 @@ import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { GeoFirestore, GeoQuery } from 'geofirestore';
 
-let lineMessages: Message[] = [];
-let message: Message;
-
 export const getIsIntentMatch = (res) => {
     const queryResult = get(res, ['0', 'queryResult']);
     const intentName = get(queryResult, ['intent', 'displayName']);
+    let lineMessages: Message[] = [];
 
     switch (intentName) {
         case 'TU-Places - yes':
-            return tuPlace(queryResult)
+            return tuPlace(queryResult, lineMessages)
         case 'Vote restaurant': // User supplied restaurant name, but yet not sore.
-            return popularRest('vote') // User supplied name & score.
+            return popularRest(lineMessages, 'vote') // User supplied name & score.
         case 'Vote restaurant - name - score - yes':
-            return voteRest(queryResult)
+            return voteRest(queryResult, lineMessages)
         case 'Popular restaurant':
-            return popularRest('popular')
+            return popularRest(lineMessages, 'popular')
         default:
             return null
     }
@@ -58,11 +56,12 @@ export const getClosestBusStop = async (message) => {
     }
 }
 
-const tuPlace = async (queryResult) => {
+const tuPlace = async (queryResult, lineMessages) => {
     const queryPlace = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
 	console.log('TCL: tuPlace -> queryPlace', queryPlace)
     const placeRef = firestoreDB.collection('places');
     const snapshot = await placeRef.get();
+    let message: Message;
 
     try {
         if (snapshot.empty) {
@@ -97,7 +96,7 @@ const tuPlace = async (queryResult) => {
     }
 }
 
-const popularRest = async (action) => {
+const popularRest = async (lineMessages, action) => {
     const resRef = firestoreDB.collection('restaurant');
     let snapshot;
     if (action === 'vote')
@@ -107,6 +106,7 @@ const popularRest = async (action) => {
 
     try {
         if (snapshot.empty) {
+            let message: Message;
             message = {
                 type: 'text',
                 text: 'Unable to find documents which have avgRating >= 4',
@@ -141,6 +141,7 @@ const popularRest = async (action) => {
     }
 
     catch (err) {
+        let message: Message;
         message = {
             type: 'text',
             text: 'Error getting documents',
@@ -150,10 +151,11 @@ const popularRest = async (action) => {
     };
 }
 
-const voteRest = async (queryResult) => {
+const voteRest = async (queryResult, lineMessages) => {
     console.log('TCL: voteRest -> queryResult', JSON.stringify(queryResult))
     const rest_name = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
     const vote_point = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
+    let message: Message; // A LINE response message
 
     try {
         const restaurantRef = firestoreDB.collection('restaurant');
