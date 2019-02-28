@@ -13,7 +13,7 @@ export const getIsIntentMatch = (res) => {
     let lineMessages: Message[] = [];
 
     switch (intentName) {
-        case 'TU-places - yes':
+        case 'TU-Places - yes':
             return tuPlace(queryResult, lineMessages)
         case 'Vote restaurant': // User supplied restaurant name, but yet not sore.
             return popularRest(lineMessages, 'vote') // User supplied name & score.
