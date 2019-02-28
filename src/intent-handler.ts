@@ -13,6 +13,9 @@ export const getIsIntentMatch = (res) => {
     let lineMessages: Message[] = [];
 
     switch (intentName) {
+        case 'TU-places - yes':
+            tuPlace(queryResult, lineMessages)
+            return
         case 'Vote restaurant': // User supplied restaurant name, but yet not sore.
             return popularRest(lineMessages, 'vote') // User supplied name & score.
         case 'Vote restaurant - name - score - yes':
@@ -51,6 +54,44 @@ export const getClosestBusStop = async (message) => {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
         return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`;
+    }
+}
+
+const tuPlace = (queryResult, lineMessages) => {
+    const resRef = firestoreDB.collection('places');
+    const snapshot = resRef.get();
+    const placeName = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']);
+    let message: Message;
+
+    try {
+        if (snapshot.empty) {
+            message = {
+                type: 'text',
+                text: 'No docs in collection.',
+            };
+            lineMessages.push(message);
+            return lineMessages
+        }
+
+        snapshot.forEach((doc) => {
+            if (get(doc.data(), 'd.name').includes(placeName)) {
+                message = {
+                    type: 'text',
+                    text: get(doc.data(), 'd.line'), //Not finished
+                };
+                lineMessages.push(message);
+                return lineMessages
+            }
+        });
+
+
+    } catch (err) {
+        message = {
+            type: 'text',
+            text: err.message,
+        };
+        lineMessages.push(message);
+        return lineMessages
     }
 }
 
