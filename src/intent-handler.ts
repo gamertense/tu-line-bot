@@ -57,9 +57,10 @@ export const getClosestBusStop = async (message) => {
 }
 
 const tuPlace = (queryResult, lineMessages) => {
+    const queryPlace = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
+	console.log('TCL: tuPlace -> queryPlace', queryPlace)
     const resRef = firestoreDB.collection('places');
     const snapshot = resRef.get();
-    const queryPlace = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
     let message: Message;
 
     try {
