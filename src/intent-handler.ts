@@ -59,7 +59,7 @@ export const getClosestBusStop = async (message) => {
 const tuPlace = (queryResult, lineMessages) => {
     const resRef = firestoreDB.collection('places');
     const snapshot = resRef.get();
-    const placeName = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']);
+    const queryPlace = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
     let message: Message;
 
     try {
@@ -73,10 +73,11 @@ const tuPlace = (queryResult, lineMessages) => {
         }
 
         snapshot.forEach((doc) => {
-            if (get(doc.data(), 'd.name').includes(placeName)) {
+            const placeFromDoc = get(doc.data(), 'd.name').toLowerCase();
+            if (placeFromDoc.includes(queryPlace)) {
                 message = {
                     type: 'text',
-                    text: get(doc.data(), 'd.line'), //Not finished
+                    text: `สายรถ NGV ที่ผ่านสถานที่นั้นคือ ${get(doc.data(), 'd.line')}`
                 };
                 lineMessages.push(message);
                 return lineMessages
