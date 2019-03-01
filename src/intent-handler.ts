@@ -65,24 +65,23 @@ const tuPlace = async (queryResult) => {
         type: 'text',
         text: 'No docs in collection.',
     };
-
     try {
         if (snapshot.empty) {
             lineMessages.push(message);
             return lineMessages
         }
 
-        snapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
             const placeFromDoc = get(doc.data(), 'd.name').toLowerCase();
             if (placeFromDoc.includes(queryPlace)) {
                 set(message, 'text', `สายรถ NGV ที่ผ่านสถานที่นั้นคือ ${get(doc.data(), 'd.line')}`)
                 lineMessages.push(message);
-                return lineMessages
             }
         });
-        
-        set(message, 'text', 'Unable to find that place')
-        lineMessages.push(message);
+        if (lineMessages.length === 0) {
+            set(message, 'text', 'Unable to find that place')
+            lineMessages.push(message);
+        }
         return lineMessages
 
     } catch (err) {
