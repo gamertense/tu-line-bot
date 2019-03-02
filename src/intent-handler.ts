@@ -1,5 +1,8 @@
 import { set, get } from 'lodash';
-import { Message, FlexMessage, FlexCarousel, FlexBubble } from '@line/bot-sdk';
+import {
+    Message, FlexMessage, FlexCarousel, FlexBubble,
+    QuickReply, QuickReplyItem, Action
+} from '@line/bot-sdk';
 
 // Cloud Firestore and geofirestore
 const firestoreDB = require('../firestore/firestore')
@@ -74,8 +77,19 @@ const tuPlace = async (queryResult) => {
         snapshot.forEach(doc => {
             const placeFromDoc = get(doc.data(), 'd.name').toLowerCase();
             if (placeFromDoc.includes(queryPlace)) {
-                set(message, 'text', `สายรถ NGV ที่ผ่านสถานที่นั้นคือ ${get(doc.data(), 'd.line')}`)
+                const qreply = {
+                    items: [{
+                        type: "action",
+                        action: {
+                            type: "location",
+                            label: "Send location"
+                        }
+                    }]
+                }
+                set(message, 'text', `สายรถ NGV ที่ผ่านสถานที่นั้นคือ ${get(doc.data(), 'd.line')} กดปุ่ม Send location ด้านล่างเพื่อหาป้ายที่ใกล้ที่สุดครับ`)
+                set(message, "quickReply", qreply)
                 lineMessages.push(message);
+                return;
             }
         });
         if (lineMessages.length === 0) {
