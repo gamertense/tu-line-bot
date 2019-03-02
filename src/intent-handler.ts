@@ -128,8 +128,11 @@ const popularRest = async (action) => {
         }
 
         let contentsArray: FlexBubble[] = [];
-        snapshot.forEach(doc => {
+
+        for (let i in snapshot.docs) {
+            const doc = snapshot.docs[i]
             let contentObj = JSON.parse(JSON.stringify(require('../line_template/restaurant.json')));
+
             set(contentObj, 'hero.url', doc.data().image_url)
             set(contentObj, 'body.contents[0].text', doc.data().name)
             set(contentObj, 'body.contents[1].contents[5].text', doc.data().avgRating.toString())
@@ -140,7 +143,7 @@ const popularRest = async (action) => {
                 set(contentObj, 'footer.contents[0].action.text', `โหวต ${doc.data().name}`)
             }
             contentsArray.push(contentObj)
-        });
+        }
 
         const carouselMsg: FlexCarousel = { type: "carousel", contents: contentsArray };
         const flexMsg: FlexMessage = {
@@ -181,30 +184,28 @@ const voteRest = async (queryResult) => {
             lineMessages.push(message);
             return lineMessages;
         } else {
-            snapshot.forEach(async doc => {
-                await firestoreDB.runTransaction(async transaction => {
-                    const res = await transaction.get(restaurantRef.doc(doc.id));
+            await firestoreDB.runTransaction(async transaction => {
+                const res = await transaction.get(restaurantRef.doc(snapshot.docs[0].id));
 
-                    if (!res.exists) {
-                        throw "Document does not exist!";
-                    }
+                if (!res.exists) {
+                    throw `Unable to find restaurant in database with id ${snapshot.docs[0].id}`;
+                }
 
-                    // Compute new number of ratings
-                    let newNumRatings = res.data().numRatings + 1;
+                // Compute new number of ratings
+                let newNumRatings = res.data().numRatings + 1;
 
-                    // Compute new average rating
-                    let oldRatingTotal = res.data().avgRating * res.data().numRatings;
-                    let newAvgRating = (oldRatingTotal + vote_point) / newNumRatings;
-                    // Limit to two decimal places
-                    newAvgRating = parseFloat(newAvgRating.toFixed(2))
+                // Compute new average rating
+                let oldRatingTotal = res.data().avgRating * res.data().numRatings;
+                let newAvgRating = (oldRatingTotal + vote_point) / newNumRatings;
+                // Limit to two decimal places
+                newAvgRating = parseFloat(newAvgRating.toFixed(2))
 
-                    // Commit to Firestore
-                    transaction.update(restaurantRef.doc(doc.id), {
-                        numRatings: newNumRatings,
-                        avgRating: newAvgRating
-                    });
-                })
-            });
+                // Commit to Firestore
+                transaction.update(restaurantRef.doc(doc.id), {
+                    numRatings: newNumRatings,
+                    avgRating: newAvgRating
+                });
+            })
 
             message = {
                 type: 'text',
