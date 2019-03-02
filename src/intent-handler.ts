@@ -167,54 +167,50 @@ const popularRest = async (action) => {
 }
 
 const voteRest = async (queryResult) => {
-    let lineMessages: Message[] = [];
     const rest_name = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
     const vote_point = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
-    let message: Message; // A LINE response message
+    
+    let lineMessages: Message[] = [];
+    let message: Message = {
+        type: 'text',
+        text: 'Your vote is successfully recorded!',
+    }; // A LINE response message
 
     try {
         const restaurantRef = firestoreDB.collection('restaurant');
         const snapshot = await restaurantRef.where('name', '==', rest_name).get()
+        const resToUpdateRef = restaurantRef.doc(snapshot.docs[0].id)
 
-        if (snapshot.empty) {
-            message = {
-                type: 'text',
-                text: 'Unable to find the restaurant in database!',
-            };
-            lineMessages.push(message);
-            return lineMessages;
-        } else {
-            await firestoreDB.runTransaction(async transaction => {
-                const res = await transaction.get(restaurantRef.doc(snapshot.docs[0].id));
+        return await firestoreDB.runTransaction(async transaction => {
+            const doc = await transaction.get(resToUpdateRef);
+            if (!doc.exists) {
+                set(message, 'text', `Unable to find restaurant in database with id ${snapshot.docs[0].id}`)
+                lineMessages.push(message);
+                return lineMessages
+            }
+            // Compute new number of ratings
+            let newNumRatings = doc.data().numRatings + 1;
 
-                if (!res.exists) {
-                    throw `Unable to find restaurant in database with id ${snapshot.docs[0].id}`;
-                }
+            // Compute new average rating
+            let oldRatingTotal = doc.data().avgRating * doc.data().numRatings;
+            let newAvgRating = (oldRatingTotal + vote_point) / newNumRatings;
+            // Limit to two decimal places
+            newAvgRating = parseFloat(newAvgRating.toFixed(2))
 
-                // Compute new number of ratings
-                let newNumRatings = res.data().numRatings + 1;
+            // Commit to Firestore
+            transaction.update(resToUpdateRef, {
+                numRatings: newNumRatings,
+                avgRating: newAvgRating
+            });
 
-                // Compute new average rating
-                let oldRatingTotal = res.data().avgRating * res.data().numRatings;
-                let newAvgRating = (oldRatingTotal + vote_point) / newNumRatings;
-                // Limit to two decimal places
-                newAvgRating = parseFloat(newAvgRating.toFixed(2))
-
-                // Commit to Firestore
-                transaction.update(restaurantRef.doc(doc.id), {
-                    numRatings: newNumRatings,
-                    avgRating: newAvgRating
-                });
-            })
-
-            message = {
-                type: 'text',
-                text: 'Your vote is successfully recorded!',
-            };
             lineMessages.push(message);
             return lineMessages
-        }
-    } catch (err) {
-        throw new Error(`Error getting document ${err}`);
+
+        })
+    } catch (e) {
+        console.log('Vote failed', e);
+        set(message, 'text', 'An error has occurred! Vote failed.')
+        lineMessages.push(message);
+        return lineMessages
     }
 }
