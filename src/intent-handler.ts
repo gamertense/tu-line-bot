@@ -3,7 +3,7 @@ import {
     Message, FlexMessage, FlexCarousel, FlexBubble
 } from '@line/bot-sdk';
 
-const geolib = require('geolib');
+import geolib from 'geolib';
 
 // Cloud Firestore and geofirestore
 const firestoreDB = require('../firestore/firestore')
