@@ -64,7 +64,7 @@ export const getClosestBusStop = async (userId, message) => {
 }
 
 // In a case that user needs to take more than one NGV bus.
-const findPreDestination = async (userid, busLine = "2") => {
+const findPreDestination = async (userid, busLine) => {
     const uplace = require('./temp_data/user-place.json')
     const userIndex = uplace.findIndex(v => v.userid === userid)
     const userBusLine = get(uplace, [userIndex, 'busLine'])
