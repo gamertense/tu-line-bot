@@ -29,7 +29,7 @@ export const getIsIntentMatch = (res) => {
     }
 }
 
-export const getClosestBusStop = async (message) => {
+export const getClosestBusStop = async (userId, message) => {
     // Create a GeoFirestore reference
     const geofirestore: GeoFirestore = new GeoFirestore(firestoreDB);
 

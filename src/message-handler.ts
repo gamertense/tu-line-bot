@@ -72,11 +72,12 @@ export class MessageHandler {
   }
 
   async handleLocation(event: MessageEvent) {
+    const userId = get(event, ['source', 'userId']);
     const replyToken = get(event, 'replyToken');
     const message: LocationEventMessage = get(event, 'message');
     // tslint:disable-next-line:no-console
     console.log(`Handle Location: ${JSON.stringify(message)}`);
-    const lineMessages = await getClosestBusStop(message);
+    const lineMessages = await getClosestBusStop(userId, message);
     return this.lineClient.replyMessage(replyToken, lineMessages);
     // return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
   }
