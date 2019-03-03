@@ -66,7 +66,7 @@ export const getClosestBusStop = async (userId, message) => {
 
         message = {
             type: 'text',
-            text: await findPreDestination(userid, busLine)
+            text: await findPreDestination(userId, busLine)
         }
 
         lineMessages.push(message);
