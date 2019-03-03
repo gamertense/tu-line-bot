@@ -78,7 +78,7 @@ export class MessageHandler {
     // tslint:disable-next-line:no-console
     console.log(`Handle Location: ${JSON.stringify(message)}`);
     const lineMessages = await getClosestBusStop(userId, message);
-    return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: lineMessages[1] }]);
+    return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: lineMessages[0] }, { type: 'text', text: lineMessages[1] }]);
     // return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
   }
 
