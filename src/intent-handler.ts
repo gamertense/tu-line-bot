@@ -1,8 +1,9 @@
 import { set, get } from 'lodash';
 import {
-    Message, FlexMessage, FlexCarousel, FlexBubble,
-    QuickReply, QuickReplyItem, Action
+    Message, FlexMessage, FlexCarousel, FlexBubble
 } from '@line/bot-sdk';
+
+const geolib = require('geolib');
 
 // Cloud Firestore and geofirestore
 const firestoreDB = require('../firestore/firestore')
@@ -54,7 +55,70 @@ export const getClosestBusStop = async (message) => {
     } else {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
-        return `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`;
+
+        let lineMessages: Message[] = [];
+        let message: Message = {
+            type: 'text',
+            text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`
+        }
+
+        lineMessages.push(message);
+
+        message = {
+            type: 'text',
+            text: await findPreDestination(userid, busLine)
+        }
+
+        lineMessages.push(message);
+
+        return lineMessages;
+    }
+}
+
+// In a case that user needs to take more than one NGV bus.
+const findPreDestination = async (userid, busLine = "2") => {
+    const uplace = require('./user-place.json')
+    const userIndex = uplace.findIndex(v => v.userid === userid)
+    const userBusLine = get(uplace, [userIndex, 'busLine'])
+    //If user exists and the taken bus doesn't go to the destination.
+    if (userIndex !== -1 && userBusLine.includes(busLine) === false) {
+        const busStopRef = firestoreDB.collection('bus-stops')
+
+        try {
+            const snapshot = await busStopRef.get()
+
+            if (snapshot.empty) {
+                return "No matching documents."
+            }
+
+            let min = 100000;
+            let busSolution = {}
+
+            for (let i in snapshot.docs) {
+                const doc = snapshot.docs[i]
+                const busLineInDoc = get(doc.data(), 'd.line')
+                // Check which bus to take next and where to stop at
+                if (busLineInDoc !== undefined && busLineInDoc.includes(busLine) && busLineInDoc.includes(userBusLine[0])) {
+                    const dist = geolib.getDistance(
+                        { latitude: get(uplace, [userIndex, 'loc', 'latitude']), longitude: get(uplace, [userIndex, 'loc', 'longitude']) },
+                        { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
+                    );
+                    // console.log(get(doc.data(), 'd.name'))
+                    // console.log('TCL: findPreDestination -> dist', dist)
+                    if (dist < min) {
+                        min = dist
+                        busSolution['name'] = get(doc.data(), 'd.info')
+                        busSolution['line'] = get(doc.data(), 'd.line')
+                    }
+                }
+            };
+            return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${busSolution['name']} จากนั้นต่อสาย ${busSolution['line']} เพื่อไป ${get(uplace, [userIndex, 'goTo'])}`
+        }
+        catch (err) {
+            console.log(err)
+            return err
+        }
+
     }
 }
 
@@ -169,7 +233,7 @@ const popularRest = async (action) => {
 const voteRest = async (queryResult) => {
     const rest_name = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
     const vote_point = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
-    
+
     let lineMessages: Message[] = [];
     let message: Message = {
         type: 'text',

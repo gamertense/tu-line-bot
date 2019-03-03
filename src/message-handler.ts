@@ -76,8 +76,9 @@ export class MessageHandler {
     const message: LocationEventMessage = get(event, 'message');
     // tslint:disable-next-line:no-console
     console.log(`Handle Location: ${JSON.stringify(message)}`);
-    const textRes = await getClosestBusStop(message);
-    return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
+    const lineMessages = await getClosestBusStop(message);
+    return this.lineClient.replyMessage(replyToken, lineMessages);
+    // return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
   }
 
   async handleSticker(event: MessageEvent) {
