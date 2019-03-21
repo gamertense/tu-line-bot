@@ -91,7 +91,6 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                         { latitude: userLocation[0], longitude: userLocation[1] },
                         { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
                     );
-                    console.log('TCL: findPreDestination -> dist', dist)
                     if (dist < min) {
                         min = dist
                         preDest['name'] = get(doc.data(), 'd.info')
