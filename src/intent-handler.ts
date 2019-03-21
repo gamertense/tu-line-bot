@@ -142,9 +142,14 @@ const tuPlace = async (userid, queryResult) => {
                 set(message, "quickReply", qreply)
                 lineMessages.push(message);
 
-                //Update database for future search
+                //Add user destination and bus lines for future search
                 const userRef = firestoreDB.collection('user').doc(userid);
-                userRef.update({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
+                const userDoc = userRef.get();
+                if (userDoc.exists)
+                    userRef.update({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
+                else
+                    userRef.doc(userid).set({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
+                
                 break
             }
         }
