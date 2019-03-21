@@ -148,7 +148,7 @@ const tuPlace = async (userid, queryResult) => {
                 if (userDoc.exists)
                     userRef.update({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
                 else
-                    userRef.doc(userid).set({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
+                    userRef.set({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
                 
                 break
             }
