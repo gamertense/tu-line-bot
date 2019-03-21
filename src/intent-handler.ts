@@ -11,13 +11,13 @@ import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { GeoFirestore, GeoQuery } from 'geofirestore';
 
-export const getIsIntentMatch = (res) => {
+export const getIsIntentMatch = (userid, res) => {
     const queryResult = get(res, ['0', 'queryResult']);
     const intentName = get(queryResult, ['intent', 'displayName']);
 
     switch (intentName) {
         case 'TU-Places - yes':
-            return tuPlace(queryResult)
+            return tuPlace(userid, queryResult)
         case 'Vote restaurant': // User supplied restaurant name, but yet not sore.
             return popularRest('vote') // User supplied name & score.
         case 'Vote restaurant - name - score - yes':
@@ -29,7 +29,7 @@ export const getIsIntentMatch = (res) => {
     }
 }
 
-export const getClosestBusStop = async (userId, message) => {
+export const getClosestBusStop = async (userId: string, message) => {
     // Create a GeoFirestore reference
     const geofirestore: GeoFirestore = new GeoFirestore(firestoreDB);
 
@@ -57,22 +57,22 @@ export const getClosestBusStop = async (userId, message) => {
         const busLine = get(busDoc.data(), ['d', 'line'])
 
         let lineMessages = [`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`];
-        lineMessages.push(await findPreDestination(userId, busLine));
+        lineMessages.push(await findPreDestination(userId, userLocation, busLine));
 
         return lineMessages;
     }
 }
 
 // In a case that user needs to take more than one NGV bus.
-const findPreDestination = async (userid, busLine) => {
-    const uplace = require('./temp_data/user-place.json')
-    const userIndex = uplace.findIndex(v => v.userid === userid)
-    const userBusLine = get(uplace, [userIndex, 'busLine'])
-    //If user exists and the taken bus doesn't go to the destination.
-    if (userIndex !== -1 && userBusLine.includes(busLine) === false) {
-        const busStopRef = firestoreDB.collection('bus-stops')
+const findPreDestination = async (userid: string, userLocation: number[], busLine: string[]) => {
+    const userRef = firestoreDB.collection('user').doc(userid);
 
-        try {
+    try {
+        const userDoc = await userRef.get();
+
+        if (userDoc.exists && userDoc.busLine[0].includes(busLine) === false) {
+            console.log(userDoc.data().queryPlace)
+            const busStopRef = firestoreDB.collection('bus-stops')
             const snapshot = await busStopRef.get()
 
             if (snapshot.empty) {
@@ -86,9 +86,9 @@ const findPreDestination = async (userid, busLine) => {
                 const doc = snapshot.docs[i]
                 const busLineInDoc = get(doc.data(), 'd.line')
                 // Check which bus to take next and where to stop at
-                if (busLineInDoc !== undefined && busLineInDoc.includes(busLine) && busLineInDoc.includes(userBusLine[0])) {
+                if (busLineInDoc !== undefined && busLineInDoc.includes(busLine) && busLineInDoc.includes(userDoc.busLine[0])) {
                     const dist = geolib.getDistance(
-                        { latitude: get(uplace, [userIndex, 'loc', 'latitude']), longitude: get(uplace, [userIndex, 'loc', 'longitude']) },
+                        { latitude: userLocation[0], longitude: userLocation[1] },
                         { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
                     );
                     console.log('TCL: findPreDestination -> dist', dist)
@@ -99,17 +99,17 @@ const findPreDestination = async (userid, busLine) => {
                     }
                 }
             };
-            return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${busSolution['name']} จากนั้นต่อสาย ${busSolution['line']} เพื่อไป ${get(uplace, [userIndex, 'goTo'])}`
+            return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${busSolution['name']} จากนั้นต่อสาย ${busSolution['line']} เพื่อไป ${get(userDoc, 'queryPlace')}`
+        } else {
+            return 'No such user!';
         }
-        catch (err) {
-            console.log(err)
-            return err
-        }
-
     }
+    catch (err) {
+        return `Error getting document from user table ${err}`
+    };
 }
 
-const tuPlace = async (queryResult) => {
+const tuPlace = async (userid, queryResult) => {
     const queryPlace = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
     console.log('TCL: tuPlace -> queryPlace', queryPlace)
     const placeRef = firestoreDB.collection('places');
@@ -138,9 +138,13 @@ const tuPlace = async (queryResult) => {
                         }
                     }]
                 }
-                set(message, 'text', `สายรถ NGV ที่ผ่านสถานที่นั้นคือ ${get(doc.data(), 'd.line')} กดปุ่ม Send location ด้านล่างเพื่อหาป้ายที่ใกล้ที่สุดครับ`)
+                set(message, 'text', `สายรถ NGV ที่ผ่าน ${queryPlace} คือ ${get(doc.data(), 'd.line')} กดปุ่ม Send location ด้านล่างเพื่อหาป้ายที่ใกล้ที่สุดครับ`)
                 set(message, "quickReply", qreply)
                 lineMessages.push(message);
+
+                //Update database for future search
+                const userRef = firestoreDB.collection('user').doc(userid);
+                userRef.update({ queryPlace, busLine: get(doc.data(), 'd.line') });
                 break
             }
         }
