@@ -70,7 +70,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
     try {
         const userDoc = await userRef.get();
 
-        if (userDoc.exists && userDoc.busLine[0].includes(busLine) === false) {
+        if (userDoc.exists && get(userDoc.data(), 'busLine[0]').includes(busLine) === false) {
             console.log(userDoc.data().queryPlace)
             const busStopRef = firestoreDB.collection('bus-stops')
             const snapshot = await busStopRef.get()
@@ -105,7 +105,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
         }
     }
     catch (err) {
-        return `Error getting document from user table ${err}`
+        return err;
     };
 }
 
