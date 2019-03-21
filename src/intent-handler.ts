@@ -80,7 +80,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
             }
 
             let min = 100000;
-            let busSolution = {}
+            let preDest = {}
 
             for (let i in snapshot.docs) {
                 const doc = snapshot.docs[i]
@@ -94,12 +94,12 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                     console.log('TCL: findPreDestination -> dist', dist)
                     if (dist < min) {
                         min = dist
-                        busSolution['name'] = get(doc.data(), 'd.info')
-                        busSolution['line'] = get(doc.data(), 'd.line')
+                        preDest['name'] = get(doc.data(), 'd.info')
+                        preDest['line'] = get(doc.data(), 'd.line')
                     }
                 }
             };
-            return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${busSolution['name']} จากนั้นต่อสาย ${busSolution['line']} เพื่อไป ${get(userDoc.data(), 'queryPlace')}`
+            return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preDest['line']} เพื่อไป ${get(userDoc.data(), 'destination')}`
         } else {
             return 'No such user!';
         }
@@ -110,8 +110,8 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
 }
 
 const tuPlace = async (userid, queryResult) => {
-    const queryPlace = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
-    console.log('TCL: tuPlace -> queryPlace', queryPlace)
+    const userDestination = get(queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
+    console.log('TCL: tuPlace -> userDestination', userDestination)
     const placeRef = firestoreDB.collection('places');
     const snapshot = await placeRef.get();
     let lineMessages: Message[] = [];
@@ -128,7 +128,7 @@ const tuPlace = async (userid, queryResult) => {
         for (let i in snapshot.docs) {
             const doc = snapshot.docs[i]
             const placeFromDoc = get(doc.data(), 'd.name').toLowerCase();
-            if (placeFromDoc.includes(queryPlace)) {
+            if (placeFromDoc.includes(userDestination)) {
                 const qreply = {
                     items: [{
                         type: "action",
@@ -138,13 +138,13 @@ const tuPlace = async (userid, queryResult) => {
                         }
                     }]
                 }
-                set(message, 'text', `สายรถ NGV ที่ผ่าน ${queryPlace} คือ ${get(doc.data(), 'd.line')} กดปุ่ม Send location ด้านล่างเพื่อหาป้ายที่ใกล้ที่สุดครับ`)
+                set(message, 'text', `สายรถ NGV ที่ผ่าน ${userDestination} คือ ${get(doc.data(), 'd.line')} กดปุ่ม Send location ด้านล่างเพื่อหาป้ายที่ใกล้ที่สุดครับ`)
                 set(message, "quickReply", qreply)
                 lineMessages.push(message);
 
                 //Update database for future search
                 const userRef = firestoreDB.collection('user').doc(userid);
-                userRef.update({ queryPlace, busLine: get(doc.data(), 'd.line') });
+                userRef.update({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
                 break
             }
         }
