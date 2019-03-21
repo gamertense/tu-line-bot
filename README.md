@@ -1,1 +1,1 @@
-A Thammasat University intelligent LINE chatbot.
+An intelligent LINE chatbot for people at Thammasat University.
