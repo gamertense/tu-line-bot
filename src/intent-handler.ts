@@ -69,9 +69,9 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
 
     try {
         const userDoc = await userRef.get();
+        const userBus = get(userDoc.data(), 'busLine[0]')
 
-        if (userDoc.exists && get(userDoc.data(), 'busLine[0]').includes(busLine) === false) {
-            console.log(userDoc.data().queryPlace)
+        if (userDoc.exists && userBus.includes(busLine) === false) {
             const busStopRef = firestoreDB.collection('bus-stops')
             const snapshot = await busStopRef.get()
 
@@ -84,9 +84,9 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
 
             for (let i in snapshot.docs) {
                 const doc = snapshot.docs[i]
-                const busLineInDoc = get(doc.data(), 'd.line')
+                const busSearchDoc = get(doc.data(), 'd.line')
                 // Check which bus to take next and where to stop at
-                if (busLineInDoc !== undefined && busLineInDoc.includes(busLine) && busLineInDoc.includes(userDoc.busLine[0])) {
+                if (busSearchDoc !== undefined && busSearchDoc.includes(busLine) && busSearchDoc.includes(userBus)) {
                     const dist = geolib.getDistance(
                         { latitude: userLocation[0], longitude: userLocation[1] },
                         { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
@@ -99,7 +99,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                     }
                 }
             };
-            return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${busSolution['name']} จากนั้นต่อสาย ${busSolution['line']} เพื่อไป ${get(userDoc, 'queryPlace')}`
+            return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${busSolution['name']} จากนั้นต่อสาย ${busSolution['line']} เพื่อไป ${get(userDoc.data(), 'queryPlace')}`
         } else {
             return 'No such user!';
         }
