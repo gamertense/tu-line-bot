@@ -86,7 +86,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                 const doc = snapshot.docs[i]
                 const busSearchDoc = get(doc.data(), 'd.line')
                 // Check which bus to take next and where to stop at
-                if (busSearchDoc !== undefined && busSearchDoc.includes(busLine) && busSearchDoc.includes(userBus)) {
+                if (busSearchDoc !== undefined && busSearchDoc.includes(busLine[0]) && busSearchDoc.includes(userBus)) {
                     const dist = geolib.getDistance(
                         { latitude: userLocation[0], longitude: userLocation[1] },
                         { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
@@ -97,8 +97,6 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                         preDest['name'] = get(doc.data(), 'd.info')
                         preDest['line'] = get(doc.data(), 'd.line')
                     }
-                } else {
-                    console.log(get(doc.data(), 'd.line'))
                 }
             };
             return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preDest['line']} เพื่อไป ${get(userDoc.data(), 'destination')}`
