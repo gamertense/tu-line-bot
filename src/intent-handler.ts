@@ -97,6 +97,8 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                         preDest['name'] = get(doc.data(), 'd.info')
                         preDest['line'] = get(doc.data(), 'd.line')
                     }
+                } else {
+                    console.log(get(doc.data(), 'd.line'))
                 }
             };
             return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preDest['line']} เพื่อไป ${get(userDoc.data(), 'destination')}`
