@@ -278,7 +278,7 @@ const voteRest = async (queryResult) => {
 
 const setSeatType = async (userid: string, queryResult: any) => {
     console.log("TCL: setSeatType -> queryResult", JSON.stringify(queryResult));
-    const seattype = get(queryResult, ['parameters', 'fields', 'stringValue']);
+    const seattype = get(queryResult, ['parameters', 'fields', 'seattype', 'stringValue']);
     const userRef = firestoreDB.collection('user').doc(userid);
     const userDoc = await userRef.get();
 
