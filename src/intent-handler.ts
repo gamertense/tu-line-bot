@@ -286,6 +286,12 @@ const setSeatType = async (userid: string, queryResult: any) => {
         userRef.update({ seattype });
     else
         userRef.set({ seattype });
-    
-    return get(queryResult, ['fulfillmentMessages', '0', 'text', 'text', '0'])
+
+    let lineMessages: Message[] = [];
+    let message: Message = {
+        type: 'text',
+        text: get(queryResult, ['fulfillmentMessages', '0', 'text', 'text', '0'])
+    };
+    lineMessages.push(message);
+    return lineMessages;
 }
