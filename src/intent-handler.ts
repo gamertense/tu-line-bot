@@ -24,6 +24,8 @@ export const getIsIntentMatch = (userid, res) => {
             return voteRest(queryResult)
         case 'Popular restaurant':
             return popularRest('popular')
+        case 'Seat type preference':
+            return setSeatType(userid, queryResult)
         default:
             return null
     }
@@ -148,7 +150,7 @@ const tuPlace = async (userid, queryResult) => {
                     userRef.update({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
                 else
                     userRef.set({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
-                
+
                 break
             }
         }
@@ -272,4 +274,18 @@ const voteRest = async (queryResult) => {
         lineMessages.push(message);
         return lineMessages
     }
+}
+
+const setSeatType = async (userid: string, queryResult: any) => {
+    console.log("TCL: setSeatType -> queryResult", JSON.stringify(queryResult));
+    const seattype = get(queryResult, 'parameters.seattype');
+    const userRef = firestoreDB.collection('user').doc(userid);
+    const userDoc = await userRef.get();
+
+    if (userDoc.exists)
+        userRef.update({ seattype });
+    else
+        userRef.set({ seattype });
+    
+    return 'Seat type successfully recorded!'
 }
