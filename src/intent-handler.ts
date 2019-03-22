@@ -278,7 +278,7 @@ const voteRest = async (queryResult) => {
 
 const setSeatType = async (userid: string, queryResult: any) => {
     console.log("TCL: setSeatType -> queryResult", JSON.stringify(queryResult));
-    const seattype = get(queryResult, 'parameters.seattype');
+    const seattype = get(queryResult, ['parameters', 'fields', 'stringValue']);
     const userRef = firestoreDB.collection('user').doc(userid);
     const userDoc = await userRef.get();
 
@@ -287,5 +287,5 @@ const setSeatType = async (userid: string, queryResult: any) => {
     else
         userRef.set({ seattype });
     
-    return 'Seat type successfully recorded!'
+    return get(queryResult, ['fulfillmentMessages', '0', 'text', 'text', '0'])
 }
