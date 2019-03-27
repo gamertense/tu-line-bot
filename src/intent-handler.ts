@@ -101,9 +101,10 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
 
     try {
         const userDoc = await userRef.get();
-        const bus1 = get(userDoc.data(), 'busLine[0]')
+        //The last bus the user needs to take to go to his/her destination.
+        const userBus = get(userDoc.data(), 'busLine[0]')
 
-        if (userDoc.exists && bus1.includes(busLine) === false) {
+        if (userDoc.exists && userBus.includes(busLine) === false) {
             const busStopRef = firestoreDB.collection('bus-stops')
             const snapshot = await busStopRef.get()
 
@@ -118,7 +119,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                 const doc = snapshot.docs[i]
                 const busSearchDoc = get(doc.data(), 'd.line')
                 // Check which bus to take next and where to stop at
-                if (busSearchDoc !== undefined && busSearchDoc.includes(busLine[0]) && busSearchDoc.includes(bus1)) {
+                if (busSearchDoc !== undefined && busSearchDoc.includes(busLine[0]) && busSearchDoc.includes(userBus)) {
                     const dist = geolib.getDistance(
                         { latitude: userLocation[0], longitude: userLocation[1] },
                         { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
