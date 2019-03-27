@@ -60,8 +60,40 @@ export const getClosestBusStop = async (userId: string, message) => {
 
         let lineMessages = [`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`];
         lineMessages.push(await findPreDestination(userId, userLocation, busLine));
+        lineMessages.push(await checkBusTraffic(busLine));
 
         return lineMessages;
+    }
+}
+
+// Check if traffic congestion occurs at bus location
+const checkBusTraffic = async (busLine: number[]) => {
+    const axios = require('axios');
+
+    // To be done.
+    // Get all buses from external API and choose only the closest one.
+    const busLocationInfo = 'หอสมุดป๋วย';
+    const buslocation = [52.41072, 4.84239];
+
+    try {
+        const key = 'WvTNE8QePwDPIDdHK5la74ApPYryjHdH';
+        const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${buslocation[0]}%2C${buslocation[1]}&key=${key}`;
+        const response = await axios.get(url);
+        const speed = get(response, ['data', 'flowSegmentData', 'freeFlowSpeed']);
+
+        switch (true) {
+            case (speed >= 0 || speed <= 10):
+                return `ขณะนี้มีการจราจรติดขัดมาก ${busLocationInfo}`;
+            case (speed >= 10 || speed <= 20):
+                return `ขณะนี้มีการจราจรติดขัดเล็กน้อยที่ ${busLocationInfo}`;
+            case (speed > 30):
+                return `ขณะนี้การจราจรปกติ`;
+            default:
+                return 'TOMTOM gave invalid data.';
+        }
+
+    } catch (error) {
+        return error;
     }
 }
 
