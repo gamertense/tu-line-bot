@@ -5,7 +5,7 @@ import { Message } from '@line/bot-sdk';
 import { structProtoToJson, jsonToStructProto } from './structjson';
 import { DialogflowConfig } from './types';
 
-import { getIsIntentMatch } from './intent-handler'
+import { IntentHandler } from './intent-handler'
 
 export class DialogflowClient {
 
@@ -35,7 +35,8 @@ export class DialogflowClient {
     };
 
     // If intent is matched, get response message from intent-handler.ts
-    let messages = await getIsIntentMatch(sessionId, await this.sessionClient.detectIntent(req))
+    const intentHandler = new IntentHandler(sessionId, await this.sessionClient.detectIntent(req))
+    let messages = await intentHandler.isIntentMatched();
     if (messages)
       return messages
 

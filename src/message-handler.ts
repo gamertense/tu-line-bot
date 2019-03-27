@@ -10,10 +10,10 @@ import {
   StickerEventMessage,
 } from '@line/bot-sdk';
 
-import { LINE_VERIFY_TOKEN, chatbaseConfig } from './config';
+import { LINE_VERIFY_TOKEN } from './config';
 import { DialogflowClient } from './dialogflow-client';
 
-import { getClosestBusStop } from './intent-handler';
+import { getClosestBusStop } from './location-handler';
 
 export class MessageHandler {
 
@@ -76,7 +76,7 @@ export class MessageHandler {
     const replyToken = get(event, 'replyToken');
     const message: LocationEventMessage = get(event, 'message');
     const lineMessages = await getClosestBusStop(userId, message);
-    
+
     return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: lineMessages[0] }, { type: 'text', text: lineMessages[1] }]);
     // return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
   }
@@ -91,5 +91,4 @@ export class MessageHandler {
     }
     return this.lineClient.replyMessage(replyToken, [message]);
   }
-
 }
