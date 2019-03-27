@@ -82,14 +82,12 @@ const checkBusTraffic = async (busLine: number[]) => {
         const speed = get(response, ['data', 'flowSegmentData', 'freeFlowSpeed']);
 
         switch (true) {
-            case (speed >= 0 || speed <= 10):
+            case speed <= 10:
                 return `ขณะนี้มีการจราจรติดขัดมาก ${busLocationInfo}`;
-            case (speed >= 10 || speed <= 20):
+            case speed <= 20:
                 return `ขณะนี้มีการจราจรติดขัดเล็กน้อยที่ ${busLocationInfo}`;
-            case (speed > 30):
-                return `ขณะนี้การจราจรปกติ`;
             default:
-                return 'TOMTOM gave invalid data.';
+                return `ขณะนี้การจราจรปกติ`;
         }
 
     } catch (error) {
@@ -132,7 +130,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                     }
                 }
             };
-            
+
             const bus2 = preDest['line'].filter(line => busLine !== line);
             return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${bus2} เพื่อไป ${get(userDoc.data(), 'destination')}`
         } else {
