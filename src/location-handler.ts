@@ -29,21 +29,21 @@ export const getClosestBusStop = async (userId: string, message) => {
     const busDoc = await busDocRef.get()
 
     if (!busDoc.exists) {
-      return 'Unable to find the closest bus stop.'
+        return 'Unable to find the closest bus stop.'
     } else {
-      const busInfo = get(busDoc.data(), ['d', 'info'])
-      const busLine = get(busDoc.data(), ['d', 'line'])
+        const busInfo = get(busDoc.data(), ['d', 'info'])
+        const busLine = get(busDoc.data(), ['d', 'line'])
 
-      let lineMessages = [`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`];
-      lineMessages.push(await findPreDestination(userId, userLocation, busLine));
-      lineMessages.push(await checkBusTraffic(busLine));
+        let lineMessages = [`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`];
+        lineMessages.push(await findPreDestination(userId, userLocation, busLine));
+        lineMessages.push(await checkBusTraffic(busLine));
 
-      return lineMessages;
+        return lineMessages;
     }
-  }
+}
 
-  // Check if traffic congestion occurs at bus location
-  const checkBusTraffic = async (busLine: number[]) => {
+// Check if traffic congestion occurs at bus location
+const checkBusTraffic = async (busLine: number[]) => {
     const axios = require('axios');
 
     // To be done.
@@ -52,69 +52,69 @@ export const getClosestBusStop = async (userId: string, message) => {
     const buslocation = [52.41072, 4.84239];
 
     try {
-      const key = 'WvTNE8QePwDPIDdHK5la74ApPYryjHdH';
-      const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${buslocation[0]}%2C${buslocation[1]}&key=${key}`;
-      const response = await axios.get(url);
-      const speed = get(response, ['data', 'flowSegmentData', 'freeFlowSpeed']);
+        const key = 'WvTNE8QePwDPIDdHK5la74ApPYryjHdH';
+        const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${buslocation[0]}%2C${buslocation[1]}&key=${key}`;
+        const response = await axios.get(url);
+        const speed = get(response, ['data', 'flowSegmentData', 'freeFlowSpeed']);
 
-      switch (true) {
-        case speed <= 10:
-          return `ขณะนี้มีการจราจรติดขัดมาก ${busLocationInfo}`;
-        case speed <= 20:
-          return `ขณะนี้มีการจราจรติดขัดเล็กน้อยที่ ${busLocationInfo}`;
-        default:
-          return `ขณะนี้การจราจรปกติ`;
-      }
+        switch (true) {
+            case speed <= 10:
+                return `ขณะนี้มีการจราจรติดขัดมาก ${busLocationInfo}`;
+            case speed <= 20:
+                return `ขณะนี้มีการจราจรติดขัดเล็กน้อยที่ ${busLocationInfo}`;
+            default:
+                return `ขณะนี้การจราจรปกติ`;
+        }
 
     } catch (error) {
-      return error;
+        return error;
     }
-  }
+}
 
-  // In a case that user needs to take more than one NGV bus.
-  const findPreDestination = async (userid: string, userLocation: number[], busLine: string[]) => {
+// In a case that user needs to take more than one NGV bus.
+const findPreDestination = async (userid: string, userLocation: number[], busLine: string[]) => {
     const userRef = firestoreDB.collection('user').doc(userid);
 
     try {
-      const userDoc = await userRef.get();
-      //The last bus the user needs to take to go to his/her destination.
-      const userBus = get(userDoc.data(), 'busLine[0]')
+        const userDoc = await userRef.get();
+        //The last bus the user needs to take to go to his/her destination.
+        const userBus = get(userDoc.data(), 'busLine[0]')
 
-      if (userDoc.exists && userBus.includes(busLine) === false) {
-        const busStopRef = firestoreDB.collection('bus-stops')
-        const snapshot = await busStopRef.get()
+        if (userDoc.exists && userBus.includes(busLine) === false) {
+            const busStopRef = firestoreDB.collection('bus-stops')
+            const snapshot = await busStopRef.get()
 
-        if (snapshot.empty) {
-          return "No matching documents."
-        }
-
-        let min = 100000;
-        let preDest = {}
-
-        for (let i in snapshot.docs) {
-          const doc = snapshot.docs[i]
-          const busSearchDoc = get(doc.data(), 'd.line')
-          // Check which bus to take next and where to stop at
-          if (busSearchDoc !== undefined && busSearchDoc.includes(busLine[0]) && busSearchDoc.includes(userBus)) {
-            const dist = geolib.getDistance(
-              { latitude: userLocation[0], longitude: userLocation[1] },
-              { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
-            );
-            if (dist < min) {
-              min = dist
-              preDest['name'] = get(doc.data(), 'd.info')
-              preDest['line'] = get(doc.data(), 'd.line')
+            if (snapshot.empty) {
+                return "No matching documents."
             }
-          }
-        };
 
-        const bus2 = preDest['line'].filter(line => busLine !== line);
-        return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${bus2} เพื่อไป ${get(userDoc.data(), 'destination')}`
-      } else {
-        return 'No such user!';
-      }
+            let min = 100000;
+            let preDest = {}
+
+            for (let i in snapshot.docs) {
+                const doc = snapshot.docs[i]
+                const busSearchDoc = get(doc.data(), 'd.line')
+                // Check which bus to take next and where to stop at
+                if (busSearchDoc !== undefined && busSearchDoc.includes(busLine[0]) && busSearchDoc.includes(userBus)) {
+                    const dist = geolib.getDistance(
+                        { latitude: userLocation[0], longitude: userLocation[1] },
+                        { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
+                    );
+                    if (dist < min) {
+                        min = dist
+                        preDest['name'] = get(doc.data(), 'd.info')
+                        preDest['line'] = get(doc.data(), 'd.line')
+                    }
+                }
+            };
+
+            const bus2 = preDest['line'].filter(line => busLine !== line);
+            return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${bus2} เพื่อไป ${get(userDoc.data(), 'destination')}`
+        } else {
+            return 'No such user!';
+        }
     }
     catch (err) {
-      return err;
+        return err;
     };
-  }
+}
