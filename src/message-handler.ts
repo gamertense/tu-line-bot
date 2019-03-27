@@ -87,7 +87,7 @@ export class MessageHandler {
     // tslint:disable-next-line:no-console
     console.log(`Handle Sticker: ${JSON.stringify(message)}`);
     if (message.packageId != '1') {
-      message = { "type": "sticker", "stickerId": "13", "packageId": "1" };
+      message = { "id": "test", "type": "sticker", "stickerId": "13", "packageId": "1" };
     }
     return this.lineClient.replyMessage(replyToken, [message]);
   }
