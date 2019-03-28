@@ -84,7 +84,7 @@ export class LocationHandler {
         // To be done.
         // Get all buses from external API and choose only the closest one.
         const busLocationInfo = 'หอสมุดป๋วย';
-        const buslocation = [14.07122962, 100.60166717];
+        const buslocation = [14.06658289,100.60509235];
 
         try {
             const key = 'WvTNE8QePwDPIDdHK5la74ApPYryjHdH';
@@ -118,7 +118,7 @@ export class LocationHandler {
             //The last bus the user needs to take to go to his/her destination.
             const lastTakeBus = get(this.userDoc.data(), 'busLine[0]')
 
-            if (this.userDoc.exists && this.busLine.includes(lastTakeBus) === false) {
+            if (this.userDoc.exists && lastTakeBus.includes(this.busLine) === false) {
                 const busStopRef = firestoreDB.collection('bus-stops')
                 const snapshot = await busStopRef.get()
 
