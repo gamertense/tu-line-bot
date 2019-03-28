@@ -42,16 +42,17 @@ export const getClosestBusStop = async (userId: string, locationMessage) => {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
 
-        // Construct messages
         message = {
             type: 'text',
             text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`,
         };
         lineMessages.push(message);
-        message = {
-            type: 'text',
-            text: await findPreDestination(userId, userLocation, busLine),
-        };
+        if (busLine[0] == '2') {
+            message = {
+                type: 'text',
+                text: await findPreDestination(userId, userLocation, busLine),
+            };
+        }
         lineMessages.push(message);
         message = {
             type: 'text',
