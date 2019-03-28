@@ -90,7 +90,7 @@ export class LocationHandler {
             const key = 'WvTNE8QePwDPIDdHK5la74ApPYryjHdH';
             const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${buslocation[0]}%2C${buslocation[1]}&key=${key}`;
             const response = await axios.get(url);
-            const speed = get(response, ['data', 'flowSegmentData', 'freeFlowSpeed']);
+            const speed = get(response, ['data', 'flowSegmentData', 'currentSpeed']);
 
             switch (true) {
                 case speed <= 10:
