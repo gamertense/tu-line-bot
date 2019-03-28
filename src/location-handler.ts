@@ -55,7 +55,7 @@ export class LocationHandler {
             return message;
         } else {
             const busInfo = get(busDoc.data(), ['d', 'info'])
-            const busLine = get(busDoc.data(), ['d', 'line'])
+            this.busLine = get(busDoc.data(), ['d', 'line'])
 
             message = {
                 type: 'text',
@@ -84,7 +84,7 @@ export class LocationHandler {
         // To be done.
         // Get all buses from external API and choose only the closest one.
         const busLocationInfo = 'หอสมุดป๋วย';
-        const buslocation = [14.06658289,100.60509235];
+        const buslocation = [14.06658289, 100.60509235];
 
         try {
             const key = 'WvTNE8QePwDPIDdHK5la74ApPYryjHdH';
