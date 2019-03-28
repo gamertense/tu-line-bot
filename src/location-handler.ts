@@ -14,7 +14,7 @@ export class LocationHandler {
     private busLine: string[] = [];
     private userDoc: any;
 
-    constructor(userId: string, locationMessage) {
+    constructor(userId: string, locationMessage: any) {
         this.userId = userId;
         this.locationMessage = locationMessage;
     }
