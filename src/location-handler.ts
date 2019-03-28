@@ -94,7 +94,7 @@ export class LocationHandler {
 
             switch (true) {
                 case speed <= 10:
-                    return `ขณะนี้มีการจราจรติดขัดมาก ${busLocationInfo}`;
+                    return `ขณะนี้มีการจราจรติดขัดมากที่ ${busLocationInfo}`;
                 case speed <= 20:
                     return `ขณะนี้มีการจราจรติดขัดเล็กน้อยที่ ${busLocationInfo}`;
                 default:
@@ -118,7 +118,7 @@ export class LocationHandler {
             //The last bus the user needs to take to go to his/her destination.
             const lastTakeBus = get(this.userDoc.data(), 'busLine[0]')
 
-            if (this.userDoc.exists && lastTakeBus.includes(this.busLine) === false) {
+            if (this.userDoc.exists && this.busLine.includes(lastTakeBus) === false) {
                 const busStopRef = firestoreDB.collection('bus-stops')
                 const snapshot = await busStopRef.get()
 
