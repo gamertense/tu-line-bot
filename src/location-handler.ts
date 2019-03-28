@@ -70,7 +70,7 @@ const checkBusTraffic = async (busLine: number[]) => {
     // To be done.
     // Get all buses from external API and choose only the closest one.
     const busLocationInfo = 'หอสมุดป๋วย';
-    const buslocation = [52.41072, 4.84239];
+    const buslocation = [14.07122962, 100.60166717];
 
     try {
         const key = 'WvTNE8QePwDPIDdHK5la74ApPYryjHdH';
