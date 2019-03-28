@@ -15,7 +15,7 @@ export class IntentHandler {
         this.queryResult = get(res, ['0', 'queryResult']);
     }
 
-    isIntentMatched = () => {
+    private isIntentMatched = () => {
         const intentName = get(this.queryResult, ['intent', 'displayName']);
 
         switch (intentName) {
@@ -34,7 +34,7 @@ export class IntentHandler {
         }
     }
 
-    tuPlace = async () => {
+    private tuPlace = async () => {
         const userDestination = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
         console.log('TCL: tuPlace -> userDestination', userDestination)
         const placeRef = firestoreDB.collection('places');
@@ -92,7 +92,7 @@ export class IntentHandler {
         }
     }
 
-    popularRest = async (action) => {
+    private popularRest = async (action) => {
         let lineMessages: Message[] = [];
         const resRef = firestoreDB.collection('restaurant');
         let snapshot;
@@ -151,7 +151,7 @@ export class IntentHandler {
         };
     }
 
-    voteRest = async () => {
+    private voteRest = async () => {
         const rest_name = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'rest_name', 'stringValue']);
         const vote_point = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'point', 'numberValue']);
 
@@ -200,7 +200,7 @@ export class IntentHandler {
         }
     }
 
-    setSeatType = async () => {
+    private setSeatType = async () => {
         console.log("TCL: setSeatType -> queryResult", JSON.stringify(this.queryResult));
         const seattype = get(this.queryResult, ['parameters', 'fields', 'seattype', 'stringValue']);
         const userRef = firestoreDB.collection('user').doc(this.userid);

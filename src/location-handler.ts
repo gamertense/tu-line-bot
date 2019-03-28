@@ -78,7 +78,7 @@ export class LocationHandler {
     }
 
     // Check if traffic congestion occurs at bus location
-    checkBusTraffic = async () => {
+    private checkBusTraffic = async () => {
         const axios = require('axios');
 
         // To be done.
@@ -108,7 +108,7 @@ export class LocationHandler {
     }
 
     // In a case that user needs to take more than one NGV bus.
-    findPreDestination = async (userLocation: number[]) => {
+    private findPreDestination = async (userLocation: number[]) => {
         let message: Message = {
             type: 'text',
             text: "No matching documents.",
