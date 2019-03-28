@@ -1,5 +1,5 @@
 import { Message } from '@line/bot-sdk';
-import { get, set } from 'lodash';
+import { get } from 'lodash';
 
 import geolib from 'geolib';
 // Cloud Firestore and geofirestore
@@ -42,11 +42,20 @@ export const getClosestBusStop = async (userId: string, locationMessage) => {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
 
-        set(message, 'text', `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`)
+        message = {
+            type: 'text',
+            text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`,
+        };
         lineMessages.push(message);
-        set(message, 'text', await findPreDestination(userId, userLocation, busLine))
+        message = {
+            type: 'text',
+            text: await findPreDestination(userId, userLocation, busLine),
+        };
         lineMessages.push(message);
-        set(message, 'text', await checkBusTraffic(busLine))
+        message = {
+            type: 'text',
+            text: await checkBusTraffic(busLine),
+        };
         lineMessages.push(message);
 
         return lineMessages;
