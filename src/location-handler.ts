@@ -42,6 +42,7 @@ export const getClosestBusStop = async (userId: string, locationMessage) => {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
 
+        // Construct messages
         message = {
             type: 'text',
             text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`,
@@ -99,9 +100,9 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
     try {
         const userDoc = await userRef.get();
         //The last bus the user needs to take to go to his/her destination.
-        const userBus = get(userDoc.data(), 'busLine[0]')
+        const lastBus = get(userDoc.data(), 'busLine[0]')
 
-        if (userDoc.exists && userBus.includes(busLine) === false) {
+        if (userDoc.exists && lastBus.includes(busLine) === false) {
             const busStopRef = firestoreDB.collection('bus-stops')
             const snapshot = await busStopRef.get()
 
@@ -116,7 +117,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                 const doc = snapshot.docs[i]
                 const busSearchDoc = get(doc.data(), 'd.line')
                 // Check which bus to take next and where to stop at
-                if (busSearchDoc !== undefined && busSearchDoc.includes(busLine[0]) && busSearchDoc.includes(userBus)) {
+                if (busSearchDoc !== undefined && busSearchDoc.includes(busLine[0]) && busSearchDoc.includes(lastBus)) {
                     const dist = geolib.getDistance(
                         { latitude: userLocation[0], longitude: userLocation[1] },
                         { latitude: get(doc.data(), 'l._latitude'), longitude: get(doc.data(), 'l._longitude') }
@@ -129,7 +130,7 @@ const findPreDestination = async (userid: string, userLocation: number[], busLin
                 }
             };
 
-            const bus2 = preDest['line'].filter(line => busLine !== line);
+            const bus2 = preDest['line'].filter(line => busLine[0] !== line);
             return `คุณต้องนั่งรถสาย ${busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${bus2} เพื่อไป ${get(userDoc.data(), 'destination')}`
         } else {
             return 'No such user!';
