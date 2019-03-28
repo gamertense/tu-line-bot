@@ -13,7 +13,7 @@ import {
 import { LINE_VERIFY_TOKEN } from './config';
 import { DialogflowClient } from './dialogflow-client';
 
-import { getClosestBusStop } from './location-handler';
+import { LocationHandler } from './location-handler';
 
 export class MessageHandler {
 
@@ -75,8 +75,9 @@ export class MessageHandler {
     const userId = get(event, ['source', 'userId']);
     const replyToken = get(event, 'replyToken');
     const message: LocationEventMessage = get(event, 'message');
+    const locHandler = new LocationHandler(userId, message);
 
-    return this.lineClient.replyMessage(replyToken, await getClosestBusStop(userId, message));
+    return this.lineClient.replyMessage(replyToken, await locHandler.getClosestBusStop());
     // return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
   }
 
