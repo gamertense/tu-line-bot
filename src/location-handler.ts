@@ -1,4 +1,5 @@
-import { get } from 'lodash';
+import { Message } from '@line/bot-sdk';
+import { get, set } from 'lodash';
 
 import geolib from 'geolib';
 // Cloud Firestore and geofirestore
@@ -7,7 +8,7 @@ import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { GeoFirestore, GeoQuery } from 'geofirestore';
 
-export const getClosestBusStop = async (userId: string, message) => {
+export const getClosestBusStop = async (userId: string, locationMessage) => {
     // Create a GeoFirestore reference
     const geofirestore: GeoFirestore = new GeoFirestore(firestoreDB);
 
@@ -15,7 +16,7 @@ export const getClosestBusStop = async (userId: string, message) => {
     const geoCollectionRef = geofirestore.collection('bus-stops');
 
     // Create a GeoQuery based on a location
-    const userLocation = [get(message, ['latitude']), get(message, ['longitude'])]
+    const userLocation = [get(locationMessage, ['latitude']), get(locationMessage, ['longitude'])]
     const query: GeoQuery = geoCollectionRef.near({ center: new firebase.firestore.GeoPoint(userLocation[0], userLocation[1]), radius: 0.1 });
 
     // Get the closest bus stop
@@ -28,15 +29,25 @@ export const getClosestBusStop = async (userId: string, message) => {
     const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID)
     const busDoc = await busDocRef.get()
 
+    let lineMessages: Message[] = [];
+    let message: Message = {
+        type: 'text',
+        text: 'Unable to find the closest bus stop.',
+    };
+
     if (!busDoc.exists) {
-        return 'Unable to find the closest bus stop.'
+        lineMessages.push(message);
+        return message;
     } else {
         const busInfo = get(busDoc.data(), ['d', 'info'])
         const busLine = get(busDoc.data(), ['d', 'line'])
 
-        let lineMessages = [`ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`];
-        lineMessages.push(await findPreDestination(userId, userLocation, busLine));
-        lineMessages.push(await checkBusTraffic(busLine));
+        set(message, 'text', `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${busLine}`)
+        lineMessages.push(message);
+        set(message, 'text', await findPreDestination(userId, userLocation, busLine))
+        lineMessages.push(message);
+        set(message, 'text', await checkBusTraffic(busLine))
+        lineMessages.push(message);
 
         return lineMessages;
     }
@@ -67,6 +78,7 @@ const checkBusTraffic = async (busLine: number[]) => {
         }
 
     } catch (error) {
+        console.log(error);
         return error;
     }
 }

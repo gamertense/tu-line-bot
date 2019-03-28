@@ -75,9 +75,8 @@ export class MessageHandler {
     const userId = get(event, ['source', 'userId']);
     const replyToken = get(event, 'replyToken');
     const message: LocationEventMessage = get(event, 'message');
-    const lineMessages = await getClosestBusStop(userId, message);
 
-    return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: lineMessages[0] }, { type: 'text', text: lineMessages[1] }]);
+    return this.lineClient.replyMessage(replyToken, await getClosestBusStop(userId, message));
     // return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
   }
 
