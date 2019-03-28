@@ -161,7 +161,7 @@ export class LocationHandler {
                 type: 'text',
                 text: 'Error!'
             }
-            console.log(message);
+            console.log(err);
             return message;
         };
     }
