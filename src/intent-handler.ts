@@ -36,7 +36,6 @@ export class IntentHandler {
 
     private tuPlace = async () => {
         const userDestination = get(this.queryResult, ['outputContexts', '0', 'parameters', 'fields', 'place', 'stringValue']).toLowerCase();
-        console.log('TCL: tuPlace -> userDestination', userDestination)
         const placeRef = firestoreDB.collection('places');
         const snapshot = await placeRef.get();
         let lineMessages: Message[] = [];
