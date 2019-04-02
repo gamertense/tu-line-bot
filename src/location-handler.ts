@@ -1,5 +1,5 @@
 import { Message } from '@line/bot-sdk';
-import { get } from 'lodash';
+import { get, set } from 'lodash';
 
 import geolib from 'geolib';
 // Cloud Firestore and geofirestore
@@ -54,18 +54,27 @@ export class LocationHandler {
             lineMessages.push(message);
             return message;
         } else {
-            const busInfo = get(busDoc.data(), ['d', 'info'])
-            this.busLine = get(busDoc.data(), ['d', 'line'])
+            const busInfo = get(busDoc.data(), ['d', 'info']);
+            this.busLine = get(busDoc.data(), ['d', 'line']);
+            let coordinates = get(busDoc.data(), ['d', 'coordinates']);
 
             message = {
                 type: 'text',
-                text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`,
+                text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`
             };
             lineMessages.push(message);
 
             //Push if the user has to take > 1 buses
-            const preTakeBus = await this.findPreDestination(userLocation);
-            preTakeBus ? lineMessages.push(preTakeBus) : null;
+            const preBusMsg = await this.findPreDestination(userLocation);
+            if (preBusMsg) {
+                message = {
+                    type: 'text',
+                    text: preBusMsg.text
+                };
+
+                lineMessages.push(message);
+                coordinates = [preBusMsg.lat, preBusMsg.lon];
+            }
 
             message = {
                 type: 'text',
@@ -75,6 +84,7 @@ export class LocationHandler {
 
             // Add button
             let contentObj = JSON.parse(JSON.stringify(require('../line_template/mapButton.json')));
+            set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${coordinates[0]},${coordinates[1]}`)
             lineMessages.push(contentObj);
 
             return lineMessages;
@@ -113,11 +123,6 @@ export class LocationHandler {
 
     // In a case that user needs to take more than one NGV bus.
     private findPreDestination = async (userLocation: number[]) => {
-        let message: Message = {
-            type: 'text',
-            text: "No matching documents.",
-        };
-
         try {
             //The last bus the user needs to take to go to his/her destination.
             const lastTakeBus = get(this.userDoc.data(), 'busLine[0]')
@@ -127,7 +132,7 @@ export class LocationHandler {
                 const snapshot = await busStopRef.get()
 
                 if (snapshot.empty) {
-                    return message;
+                    console.log("No matching documents.");
                 }
 
                 let min = 100000;
@@ -146,27 +151,25 @@ export class LocationHandler {
                             min = dist
                             preDest['name'] = get(doc.data(), 'd.info')
                             preDest['line'] = get(doc.data(), 'd.line')
+                            preDest['lat'] = get(doc.data(), 'd.coordinates[0]')
+                            preDest['lon'] = get(doc.data(), 'd.coordinates[0]')
                         }
                     }
                 };
 
                 const preTakeBus = preDest['line'].filter(line => this.busLine[0] !== line);
-                message = {
-                    type: 'text',
+
+                return {
                     text: `คุณต้องนั่งรถสาย ${this.busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preTakeBus} เพื่อไป ${get(this.userDoc.data(), 'destination')}`,
+                    lat: preDest['lat'],
+                    lon: preDest['lon']
                 }
-                return message;
-            } else {
-                return null;
             }
+            return;
         }
         catch (err) {
-            message = {
-                type: 'text',
-                text: 'Error!'
-            }
             console.log(err);
-            return message;
+            return;
         };
     }
 };
