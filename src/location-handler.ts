@@ -1,5 +1,5 @@
 import { Message } from '@line/bot-sdk';
-import { get } from 'lodash';
+import { get, set } from 'lodash';
 
 import geolib from 'geolib';
 // Cloud Firestore and geofirestore
@@ -45,36 +45,28 @@ export class LocationHandler {
         const busDoc = await busDocRef.get()
 
         let lineMessages: Message[] = [];
-        let message: Message = {
-            type: 'text',
-            text: 'Unable to find the closest bus stop.',
-        };
 
         if (!busDoc.exists) {
-            lineMessages.push(message);
-            return message;
+            lineMessages.push({
+                type: 'text',
+                text: 'Unable to find the closest bus stop.',
+            });
         } else {
+            let message = "";
             const busInfo = get(busDoc.data(), ['d', 'info'])
             this.busLine = get(busDoc.data(), ['d', 'line'])
-
-            message = {
-                type: 'text',
-                text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`,
-            };
-            lineMessages.push(message);
-
-            //Push if the user has to take > 1 buses
+            //If the user has to take > 1 buses.
             const preTakeBus = await this.findPreDestination(userLocation);
-            preTakeBus ? lineMessages.push(preTakeBus) : null;
 
-            message = {
-                type: 'text',
-                text: await this.checkBusTraffic(),
-            };
-            lineMessages.push(message);
+            message += `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`;
+            preTakeBus ? message = message + '\n' + preTakeBus : null;
+            message = message + '\n' + await this.checkBusTraffic();
 
-            return lineMessages;
+            const contentObj = JSON.parse(JSON.stringify(require('../line_template/ngvbus.json')));
+            set(contentObj, 'contents.body.contents[0].text', message);
+            lineMessages.push({ type: 'text', text: message });
         }
+        return lineMessages;
     }
 
     // Check if traffic congestion occurs at bus location
@@ -109,11 +101,6 @@ export class LocationHandler {
 
     // In a case that user needs to take more than one NGV bus.
     private findPreDestination = async (userLocation: number[]) => {
-        let message: Message = {
-            type: 'text',
-            text: "No matching documents.",
-        };
-
         try {
             //The last bus the user needs to take to go to his/her destination.
             const lastTakeBus = get(this.userDoc.data(), 'busLine[0]')
@@ -123,7 +110,7 @@ export class LocationHandler {
                 const snapshot = await busStopRef.get()
 
                 if (snapshot.empty) {
-                    return message;
+                    return 'Cannot find pre-bus stop';
                 }
 
                 let min = 100000;
@@ -147,22 +134,13 @@ export class LocationHandler {
                 };
 
                 const preTakeBus = preDest['line'].filter(line => this.busLine[0] !== line);
-                message = {
-                    type: 'text',
-                    text: `คุณต้องนั่งรถสาย ${this.busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preTakeBus} เพื่อไป ${get(this.userDoc.data(), 'destination')}`,
-                }
-                return message;
+                return `คุณต้องนั่งรถสาย ${this.busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preTakeBus} เพื่อไป ${get(this.userDoc.data(), 'destination')}`;
             } else {
                 return null;
             }
         }
         catch (err) {
-            message = {
-                type: 'text',
-                text: 'Error!'
-            }
-            console.log(err);
-            return message;
+            return err;
         };
     }
 };
