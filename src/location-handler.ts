@@ -73,7 +73,7 @@ export class LocationHandler {
                 };
 
                 lineMessages.push(message);
-                coordinates = [preBusMsg.lat, preBusMsg.lon];
+                coordinates = preBusMsg.coor;
             }
 
             message = {
@@ -151,8 +151,7 @@ export class LocationHandler {
                             min = dist
                             preDest['name'] = get(doc.data(), 'd.info')
                             preDest['line'] = get(doc.data(), 'd.line')
-                            preDest['lat'] = get(doc.data(), 'd.coordinates[0]')
-                            preDest['lon'] = get(doc.data(), 'd.coordinates[0]')
+                            preDest['coor'] = get(doc.data(), 'd.coordinates')
                         }
                     }
                 };
@@ -161,8 +160,7 @@ export class LocationHandler {
 
                 return {
                     text: `คุณต้องนั่งรถสาย ${this.busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preTakeBus} เพื่อไป ${get(this.userDoc.data(), 'destination')}`,
-                    lat: preDest['lat'],
-                    lon: preDest['lon']
+                    coor: preDest['coor'],
                 }
             }
             return;
