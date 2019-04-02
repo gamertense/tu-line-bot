@@ -62,7 +62,7 @@ export class LocationHandler {
             preTakeBus ? message = message + '\n' + preTakeBus : null;
             message = message + '\n' + await this.checkBusTraffic();
 
-            const contentObj = JSON.parse(JSON.stringify(require('../line_template/ngvbus.json')));
+            const contentObj = JSON.parse(JSON.stringify(require('../line_template/location.json')));
             set(contentObj, 'contents.body.contents[0].text', message);
             lineMessages.push({ type: 'text', text: message });
         }
