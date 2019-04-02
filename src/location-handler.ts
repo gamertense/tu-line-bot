@@ -73,6 +73,10 @@ export class LocationHandler {
             };
             lineMessages.push(message);
 
+            // Add button
+            let contentObj = JSON.parse(JSON.stringify(require('../line_template/mapButton.json')));
+            lineMessages.push(contentObj);
+
             return lineMessages;
         }
     }
