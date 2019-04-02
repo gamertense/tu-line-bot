@@ -37,12 +37,12 @@ export class LocationHandler {
         // Get the closest bus stop
         const busStop = await query.get();
         // Sort docs since the closest one may be at index 2.
-        busStop.docs.sort((a, b) => (a.distance > b.distance) ? 1 : -1)
+        busStop.docs.sort((a, b) => (a.distance > b.distance) ? 1 : -1);
 
-        const distanceKM = get(busStop.docs, ['0', 'distance'])
-        const busStopID = get(busStop.docs, ['0', 'id'])
-        const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID)
-        const busDoc = await busDocRef.get()
+        const distanceKM = get(busStop.docs, ['0', 'distance']);
+        const busStopID = get(busStop.docs, ['0', 'id']);
+        const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID);
+        const busDoc = await busDocRef.get();
 
         let lineMessages: Message[] = [];
         let message: Message = {
