@@ -84,7 +84,7 @@ export class LocationHandler {
 
             // Add button
             let contentObj = JSON.parse(JSON.stringify(require('../line_template/mapButton.json')));
-            set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${coordinates[0]},${coordinates[1]}`)
+            set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${get(coordinates, '_latitude')},${get(coordinates, '_longitude')}`)
             lineMessages.push(contentObj);
 
             return lineMessages;
