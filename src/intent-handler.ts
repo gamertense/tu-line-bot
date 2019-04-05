@@ -95,12 +95,13 @@ export class IntentHandler {
         let lineMessages: Message[] = [];
         const resRef = firestoreDB.collection('restaurant');
         let snapshot;
-        if (action === 'vote')
-            snapshot = await resRef.get();
-        else
-            snapshot = await resRef.where('avgRating', '>=', 4).get();
 
         try {
+            if (action === 'vote')
+                snapshot = await resRef.get();
+            else
+                snapshot = await resRef.where('avgRating', '>=', 4).get();
+
             if (snapshot.empty) {
                 let message: Message;
                 message = {
