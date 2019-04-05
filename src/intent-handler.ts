@@ -91,10 +91,10 @@ export class IntentHandler {
         }
     }
 
-    private popularRest = async (action) => {
+    private popularRest = async (action: any) => {
         let lineMessages: Message[] = [];
         const resRef = firestoreDB.collection('restaurant');
-        let snapshot;
+        let snapshot: any;
 
         try {
             if (action === 'vote')
