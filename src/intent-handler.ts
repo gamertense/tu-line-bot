@@ -98,7 +98,7 @@ export class IntentHandler {
         if (action === 'vote')
             snapshot = await resRef.get();
         else
-            snapshot = await resRef.where('avgRating', '>=', 4).get()
+            snapshot = await resRef.where('avgRating', '>=', 4).get();
 
         try {
             if (snapshot.empty) {
@@ -117,14 +117,15 @@ export class IntentHandler {
                 const doc = snapshot.docs[i]
                 let contentObj = JSON.parse(JSON.stringify(require('../line_template/restaurant.json')));
 
-                set(contentObj, 'hero.url', doc.data().image_url)
-                set(contentObj, 'body.contents[0].text', doc.data().name)
-                set(contentObj, 'body.contents[1].contents[5].text', doc.data().avgRating.toString())
-                set(contentObj, 'body.contents[2].contents[0].contents[1].text', doc.data().place)
+                set(contentObj, 'hero.url', doc.data().image_url);
+                set(contentObj, 'body.contents[0].text', doc.data().name);
+                set(contentObj, 'body.contents[1].contents[5].text', doc.data().avgRating.toString());
+                set(contentObj, 'body.contents[2].contents[0].contents[1].text', doc.data().place);
 
                 if (action === 'vote') {
-                    set(contentObj, 'footer.contents[0].action.label', 'Vote')
-                    set(contentObj, 'footer.contents[0].action.text', `โหวต ${doc.data().name}`)
+                    contentObj.body.contents.splice(1, 1);
+                    set(contentObj, 'footer.contents[0].action.label', 'Vote');
+                    set(contentObj, 'footer.contents[0].action.text', `โหวต ${doc.data().name}`);
                 }
                 contentsArray.push(contentObj)
             }
@@ -135,7 +136,7 @@ export class IntentHandler {
                 "altText": "This is a Flex Message",
                 "contents": carouselMsg
             }
-            lineMessages.push(flexMsg)
+            lineMessages.push(flexMsg);
             return lineMessages;
         }
 
