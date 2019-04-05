@@ -15,7 +15,7 @@ export class IntentHandler {
         this.queryResult = get(res, ['0', 'queryResult']);
     }
 
-    private isIntentMatched = () => {
+    public isIntentMatched = () => {
         const intentName = get(this.queryResult, ['intent', 'displayName']);
 
         switch (intentName) {
