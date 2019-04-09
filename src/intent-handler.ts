@@ -22,7 +22,7 @@ export class IntentHandler {
             case 'TU-Places - yes':
                 return this.tuPlace();
             case 'Vote restaurant': // User supplied restaurant name, but yet not sore.
-                return this.popularRest('vote'); // User supplied name & score.
+                return this.popularRest('give a vote'); // User supplied name & score.
             case 'Vote restaurant - name - score - yes':
                 return this.voteRest();
             case 'Popular restaurant':
@@ -92,18 +92,25 @@ export class IntentHandler {
     }
 
     private popularRest = async (action: any) => {
+        let message: Message;
         let lineMessages: Message[] = [];
         const resRef = firestoreDB.collection('restaurant');
         let snapshot: any;
 
         try {
-            if (action === 'vote')
+            if (action === 'vote > 5') {
+                message = {
+                    type: 'text',
+                    text: 'กรุณาโหวตคะแนนระหว่าง 0-5 ครับ'
+                }
+                lineMessages.push(message);
+            }
+            if (action === 'give a vote' || action === 'vote > 5')
                 snapshot = await resRef.get();
             else
                 snapshot = await resRef.where('avgRating', '>=', 4).get();
 
             if (snapshot.empty) {
-                let message: Message;
                 message = {
                     type: 'text',
                     text: 'Unable to find documents which have avgRating >= 4',
@@ -162,14 +169,8 @@ export class IntentHandler {
             text: 'Your vote is successfully recorded!',
         }; // A LINE response message
 
-        if (vote_point > 5) {
-            message = {
-                type: 'text',
-                text: 'กรุณาโหวตคะแนนระหว่าง 0-5 ครับ'
-            }
-            lineMessages.push(message);
-            return lineMessages
-        }
+        if (vote_point > 5)
+            return this.popularRest('vote > 5');
 
         try {
             const restaurantRef = firestoreDB.collection('restaurant');
