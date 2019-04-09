@@ -21,8 +21,8 @@ export class IntentHandler {
         switch (intentName) {
             case 'TU-Places - yes':
                 return this.tuPlace();
-            case 'Vote restaurant': // User supplied restaurant name, but yet not sore.
-                return this.popularRest('give a vote'); // User supplied name & score.
+            case 'Vote restaurant': 
+                return this.popularRest('give a vote'); 
             case 'Vote restaurant - name - score - yes':
                 return this.voteRest();
             case 'Popular restaurant':
@@ -130,7 +130,7 @@ export class IntentHandler {
                 set(contentObj, 'body.contents[1].contents[5].text', doc.data().avgRating.toString());
                 set(contentObj, 'body.contents[2].contents[0].contents[1].text', doc.data().place);
 
-                if (action === 'vote') {
+                if (action === 'vote > 5') {
                     contentObj.body.contents.splice(1, 1);
                     set(contentObj, 'footer.contents[0].action.label', 'Vote');
                     set(contentObj, 'footer.contents[0].action.text', `โหวต ${doc.data().name}`);
