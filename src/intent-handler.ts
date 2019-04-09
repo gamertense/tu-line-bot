@@ -162,6 +162,15 @@ export class IntentHandler {
             text: 'Your vote is successfully recorded!',
         }; // A LINE response message
 
+        if (vote_point > 5) {
+            message = {
+                type: 'text',
+                text: 'กรุณาโหวตคะแนนระหว่าง 0-5 ครับ'
+            }
+            lineMessages.push(message);
+            return lineMessages
+        }
+
         try {
             const restaurantRef = firestoreDB.collection('restaurant');
             const snapshot = await restaurantRef.where('name', '==', rest_name).get()
@@ -191,7 +200,6 @@ export class IntentHandler {
 
                 lineMessages.push(message);
                 return lineMessages
-
             })
         } catch (e) {
             console.log('Vote failed', e);
