@@ -11,7 +11,7 @@ import { GeoFirestore, GeoQuery } from 'geofirestore';
 
 import { TRAFFIC_KEY, ROUTE_KEY } from './assets/api';
 
-const busMapping = require('./busLineMatching.json')
+const busMapping = require('./assets/busLineMatching.json')
 
 export class LocationHandler {
     private readonly userId: string;
@@ -83,7 +83,7 @@ export class LocationHandler {
 
             message = {
                 type: 'text',
-                text: await this.checkBusTraffic(),
+                text: await this.checkBusTraffic(userLocation),
             };
             lineMessages.push(message);
 
