@@ -9,7 +9,7 @@ import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { GeoFirestore, GeoQuery } from 'geofirestore';
 
-import { TRAFFIC_KEY, ROUTE_KEY } from './assets/api';
+import { TRAFFIC_KEY, ROUTE_KEY, BUS_LOCATION_URL, BUS_LOCATION_DATA } from './assets/api';
 
 const busMapping = require('./assets/busLineMatching.json')
 
@@ -103,6 +103,8 @@ export class LocationHandler {
 
             if (typeof fnb !== 'object')
                 return 'An error has occurred when finding the nearest bus.'
+            if (fnb.lat === undefined)
+                return 'ขอโทษครับ ขณะนี้ไม่มีรถ NGV ที่ผ่านจุดที่คุณอยู่'
 
             const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${fnb.lat}%2C${fnb.lon}&key=${TRAFFIC_KEY}`;
             const response = await axios.get(url);
@@ -124,30 +126,31 @@ export class LocationHandler {
     }
 
     private findNearestBus = async (userLocation: number[]) => {
-        const postURL = "https://service.mappico.co.th/api/v1/online";
-        const allBuses = await axios.post(postURL, { "chn": "THAMMASAT" });
-
         try {
+            const allBuses = await axios.post(BUS_LOCATION_URL, BUS_LOCATION_DATA);
+
             let minDistance = 50;
             let minTravelTime = 60;
             let latlon: number[] = [];
 
             for (let bus of allBuses.data) {
-                const tomtomURL = `https://api.tomtom.com/routing/1/calculateRoute/${bus.lat},${bus.lon}:${userLocation[0]},${userLocation[1]}/json?avoid=unpavedRoads&key=${ROUTE_KEY}`;
-                const tomtomRes = await axios.get(tomtomURL);
-                const distance = get(tomtomRes, ['data', 'routes', '0', 'summary', 'lengthInMeters']) / 1000;
-                const travelTimeInMin = get(tomtomRes, ['data', 'routes', '0', 'summary', 'travelTimeInSeconds']) / 60;
+                if (this.busLine === get(busMapping, bus.carno)) {
+                    const tomtomURL = `https://api.tomtom.com/routing/1/calculateRoute/${bus.lat},${bus.lon}:${userLocation[0]},${userLocation[1]}/json?avoid=unpavedRoads&key=${ROUTE_KEY}`;
+                    const tomtomRes = await axios.get(tomtomURL);
+                    const distance = get(tomtomRes, ['data', 'routes', '0', 'summary', 'lengthInMeters']) / 1000;
+                    const travelTimeInMin = get(tomtomRes, ['data', 'routes', '0', 'summary', 'travelTimeInSeconds']) / 60;
 
-                if (distance < minDistance && this.busLine === get(busMapping, bus.carno)) {
-                    minDistance = distance;
-                    minTravelTime = travelTimeInMin;
-                    latlon[0] = bus.lat;
-                    latlon[1] = bus.lon;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        minTravelTime = travelTimeInMin;
+                        latlon[0] = bus.lat;
+                        latlon[1] = bus.lon;
+                    }
                 }
             }
 
             return {
-                time: minTravelTime,
+                time: minTravelTime.toFixed(2),
                 lat: latlon[0],
                 lon: latlon[1]
             }
