@@ -150,7 +150,7 @@ export class LocationHandler {
             }
 
             return {
-                time: minTravelTime.toFixed(2),
+                time: minTravelTime.toFixed(0) + ' นาที',
                 lat: latlon[0],
                 lon: latlon[1]
             }
