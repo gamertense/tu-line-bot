@@ -123,7 +123,7 @@ export class IntentHandler {
 
             for (let i in snapshot.docs) {
                 const doc = snapshot.docs[i]
-                let contentObj = JSON.parse(JSON.stringify(require('../line_template/restaurant.json')));
+                let contentObj = JSON.parse(JSON.stringify(require('./assets/line_template/restaurant.json')));
 
                 set(contentObj, 'hero.url', doc.data().image_url);
                 set(contentObj, 'body.contents[0].text', doc.data().name);

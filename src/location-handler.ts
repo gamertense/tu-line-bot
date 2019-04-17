@@ -1,5 +1,6 @@
 import { Message } from '@line/bot-sdk';
 import { get, set } from 'lodash';
+const axios = require('axios');
 
 import geolib from 'geolib';
 // Cloud Firestore and geofirestore
@@ -7,6 +8,10 @@ const firestoreDB = require('../firestore/firestore')
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { GeoFirestore, GeoQuery } from 'geofirestore';
+
+import { TRAFFIC_KEY, ROUTE_KEY } from './assets/api';
+
+const busMapping = require('./busLineMatching.json')
 
 export class LocationHandler {
     private readonly userId: string;
@@ -42,7 +47,7 @@ export class LocationHandler {
         const distanceKM = get(busStop.docs, ['0', 'distance']);
         const busStopID = get(busStop.docs, ['0', 'id']);
         const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID);
-        const busDoc = await busDocRef.get();
+        const busStopDoc = await busDocRef.get();
 
         let lineMessages: Message[] = [];
         let message: Message = {
@@ -50,13 +55,13 @@ export class LocationHandler {
             text: 'Unable to find the closest bus stop.',
         };
 
-        if (!busDoc.exists) {
+        if (!busStopDoc.exists) {
             lineMessages.push(message);
             return message;
         } else {
-            const busInfo = get(busDoc.data(), ['d', 'info']);
-            this.busLine = get(busDoc.data(), ['d', 'line']);
-            let coordinates = get(busDoc.data(), ['d', 'coordinates']);
+            const busInfo = get(busStopDoc.data(), ['d', 'info']);
+            this.busLine = get(busStopDoc.data(), ['d', 'line']);
+            let coordinates = get(busStopDoc.data(), ['d', 'coordinates']);
 
             message = {
                 type: 'text',
@@ -83,7 +88,7 @@ export class LocationHandler {
             lineMessages.push(message);
 
             // Add button
-            let contentObj = JSON.parse(JSON.stringify(require('../line_template/mapButton.json')));
+            let contentObj = JSON.parse(JSON.stringify(require('./assets/line_template/mapButton.json')));
             set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${get(coordinates, '_latitude')},${get(coordinates, '_longitude')}`)
             lineMessages.push(contentObj);
 
@@ -92,32 +97,63 @@ export class LocationHandler {
     }
 
     // Check if traffic congestion occurs at bus location
-    private checkBusTraffic = async () => {
-        const axios = require('axios');
-
-        // To be done.
-        // Get all buses from external API and choose only the closest one.
-        const busLocationInfo = 'หอสมุดป๋วย';
-        const buslocation = [14.06658289, 100.60509235];
-
+    private checkBusTraffic = async (userLocation: number[]) => {
         try {
-            const key = 'WvTNE8QePwDPIDdHK5la74ApPYryjHdH';
-            const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${buslocation[0]}%2C${buslocation[1]}&key=${key}`;
+            const fnb = await this.findNearestBus(userLocation);
+
+            if (typeof fnb !== 'object')
+                return 'An error has occurred when finding the nearest bus.'
+
+            const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${fnb.lat}%2C${fnb.lon}&key=${TRAFFIC_KEY}`;
             const response = await axios.get(url);
             const speed = get(response, ['data', 'flowSegmentData', 'currentSpeed']);
 
             switch (true) {
                 case speed <= 10:
-                    return `ขณะนี้มีการจราจรติดขัดมากที่ ${busLocationInfo}`;
+                    return `ขณะนี้มีการจราจรติดขัดมากบริเวณรถที่คุณรอ`;
                 case speed <= 20:
-                    return `ขณะนี้มีการจราจรติดขัดเล็กน้อยที่ ${busLocationInfo}`;
+                    return `ขณะนี้มีการจราจรติดขัดเล็กน้อยบริเวณรถที่คุณรอ`;
                 default:
-                    return `ขณะนี้การจราจรปกติ`;
+                    return `ขณะนี้การจราจรปกติ กรุณารอ ${fnb.time}`;
             }
 
         } catch (error) {
             console.log(error);
             return error;
+        }
+    }
+
+    private findNearestBus = async (userLocation: number[]) => {
+        const postURL = "https://service.mappico.co.th/api/v1/online";
+        const allBuses = await axios.post(postURL, { "chn": "THAMMASAT" });
+
+        try {
+            let minDistance = 50;
+            let minTravelTime = 60;
+            let latlon: number[] = [];
+
+            for (let bus of allBuses.data) {
+                const tomtomURL = `https://api.tomtom.com/routing/1/calculateRoute/${bus.lat},${bus.lon}:${userLocation[0]},${userLocation[1]}/json?avoid=unpavedRoads&key=${ROUTE_KEY}`;
+                const tomtomRes = await axios.get(tomtomURL);
+                const distance = get(tomtomRes, ['data', 'routes', '0', 'summary', 'lengthInMeters']) / 1000;
+                const travelTimeInMin = get(tomtomRes, ['data', 'routes', '0', 'summary', 'travelTimeInSeconds']) / 60;
+
+                if (distance < minDistance && this.busLine === get(busMapping, bus.carno)) {
+                    minDistance = distance;
+                    minTravelTime = travelTimeInMin;
+                    latlon[0] = bus.lat;
+                    latlon[1] = bus.lon;
+                }
+            }
+
+            return {
+                time: minTravelTime,
+                lat: latlon[0],
+                lon: latlon[1]
+            }
+        } catch (error) {
+            console.log(`Unable to find the nearest bus.\n${error}`);
+            return 'Unable to find the nearest bus.';
         }
     }
 
