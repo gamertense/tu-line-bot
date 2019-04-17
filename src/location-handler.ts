@@ -134,7 +134,7 @@ export class LocationHandler {
             let latlon: number[] = [];
 
             for (let bus of allBuses.data) {
-                if (this.busLine === get(busMapping, bus.carno)) {
+                if (this.busLine[0] === get(busMapping, bus.carno)) {
                     const tomtomURL = `https://api.tomtom.com/routing/1/calculateRoute/${bus.lat},${bus.lon}:${userLocation[0]},${userLocation[1]}/json?avoid=unpavedRoads&key=${ROUTE_KEY}`;
                     const tomtomRes = await axios.get(tomtomURL);
                     const distance = get(tomtomRes, ['data', 'routes', '0', 'summary', 'lengthInMeters']) / 1000;
