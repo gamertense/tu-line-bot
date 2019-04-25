@@ -65,15 +65,25 @@ export class LocationHandler {
                 let coordinates = get(busStopDoc.data(), ['d', 'coordinates']);
                 let contentObj = require('./assets/line_template/journey_summary.json');
 
+                //Traffic status
+                const traffic = await this.checkBusTraffic(userLocation)
+                if (traffic.errMsg) {
+                    message = {
+                        type: 'text',
+                        text: traffic.errMsg
+                    }
+                    lineMessages.push(message);
+                    return message;
+                }
+                set(contentObj, 'contents.body.contents[4].contents[2].contents[1].text', traffic.timeInMin)
+                set(contentObj, 'contents.body.contents[4].contents[5].contents[1].text', traffic.trafficStatus)
+
                 set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination'))
                 set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่านคือ 1A 1B 3') //Not finish
                 set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`)
                 set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`)
                 //Button
                 set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}`)
-                //Traffic status
-                set(contentObj, 'contents.body.contents[4].contents[5].contents[1].text', 'normal')
-
 
                 // message = {
                 //     type: 'text',
@@ -117,9 +127,9 @@ export class LocationHandler {
             const fnb = await this.findNearestBus(userLocation);
 
             if (typeof fnb !== 'object')
-                return 'An error has occurred when finding the nearest bus.'
+                return { errMsg: 'An error has occurred when finding the nearest bus.' }
             if (fnb.lat === undefined)
-                return 'ขอโทษครับ ขณะนี้ไม่มีรถ NGV ที่ผ่านจุดที่คุณอยู่'
+                return { errMsg: 'ขอโทษครับ ขณะนี้ไม่มีรถ NGV ที่ผ่านจุดที่คุณอยู่' }
 
             const url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${fnb.lat}%2C${fnb.lon}&key=${TRAFFIC_KEY}`;
             const response = await axios.get(url);
@@ -127,11 +137,11 @@ export class LocationHandler {
 
             switch (true) {
                 case speed <= 10:
-                    return `ขณะนี้มีการจราจรติดขัดมากบริเวณรถที่คุณรอ`;
+                    return { trafficStatus: `ติดขัดมาก`, time: `${fnb.time + 5} นาที` };
                 case speed <= 20:
-                    return `ขณะนี้มีการจราจรติดขัดเล็กน้อยบริเวณรถที่คุณรอ`;
+                    return { trafficStatus: `ติดขัดเล็กน้อย`, time: `${fnb.time + 3} นาที` };
                 default:
-                    return `ขณะนี้การจราจรปกติ กรุณารอ ${fnb.time}`;
+                    return { trafficStatus: 'ปกติ', time: `${fnb.time} นาที` }
             }
 
         } catch (error) {
