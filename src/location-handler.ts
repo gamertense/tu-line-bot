@@ -62,34 +62,37 @@ export class LocationHandler {
             const busInfo = get(busStopDoc.data(), ['d', 'info']);
             this.busLine = get(busStopDoc.data(), ['d', 'line']);
             let coordinates = get(busStopDoc.data(), ['d', 'coordinates']);
-
-            message = {
-                type: 'text',
-                text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`
-            };
-            lineMessages.push(message);
-
-            //Push if the user has to take > 1 buses
-            const preBusMsg = await this.findPreDestination(userLocation);
-            if (preBusMsg) {
-                message = {
-                    type: 'text',
-                    text: preBusMsg.text
-                };
-
-                lineMessages.push(message);
-                coordinates = preBusMsg.coor;
-            }
-
-            message = {
-                type: 'text',
-                text: await this.checkBusTraffic(userLocation),
-            };
-            lineMessages.push(message);
-
-            // Add button
             let contentObj = JSON.parse(JSON.stringify(require('./assets/line_template/mapButton.json')));
-            set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${get(coordinates, '_latitude')},${get(coordinates, '_longitude')}`)
+
+            set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination'))
+
+            // message = {
+            //     type: 'text',
+            //     text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`
+            // };
+            // lineMessages.push(message);
+
+            // //Push if the user has to take > 1 buses
+            // const preBusMsg = await this.findPreDestination(userLocation);
+            // if (preBusMsg) {
+            //     message = {
+            //         type: 'text',
+            //         text: preBusMsg.text
+            //     };
+
+            //     lineMessages.push(message);
+            //     coordinates = preBusMsg.coor;
+            // }
+
+            // message = {
+            //     type: 'text',
+            //     text: await this.checkBusTraffic(userLocation),
+            // };
+            // lineMessages.push(message);
+
+            // // Add button
+            // let contentObj = JSON.parse(JSON.stringify(require('./assets/line_template/mapButton.json')));
+            // set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${get(coordinates, '_latitude')},${get(coordinates, '_longitude')}`)
             lineMessages.push(contentObj);
 
             return lineMessages;
