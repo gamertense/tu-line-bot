@@ -65,8 +65,9 @@ export class LocationHandler {
             let contentObj = require('./assets/line_template/journey_summary.json');
 
             set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination'))
-            set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่าน 1A 1B 3')
-            set(contentObj, 'contents.body.contents[2].text', `${(distanceKM * 1000).toFixed(2)} เมตร`)
+            set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่าน 1A 1B 3') //Not finish
+            set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`)
+            set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', this.busLine)
 
             // message = {
             //     type: 'text',
