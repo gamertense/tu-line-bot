@@ -9,7 +9,7 @@ import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { GeoFirestore, GeoQuery } from 'geofirestore';
 
-import { TRAFFIC_KEY, ROUTE_KEY, BUS_LOCATION_URL, BUS_LOCATION_DATA } from './assets/api';
+import { TRAFFIC_KEY, ROUTE_KEY, BUS_LOCATION_URL, BUS_LOCATION_DATA, MAP_URL } from './assets/api';
 
 const busMapping = require('./assets/busLineMatching.json')
 
@@ -65,9 +65,14 @@ export class LocationHandler {
             let contentObj = require('./assets/line_template/journey_summary.json');
 
             set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination'))
-            set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่าน 1A 1B 3') //Not finish
+            set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่านคือ 1A 1B 3') //Not finish
             set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`)
-            set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', this.busLine)
+            set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`)
+            //Button
+            set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}`)
+            //Traffic status
+            set(contentObj, 'contents.body.contents[4].contents[5].contents[1].text', 'normal')
+
 
             // message = {
             //     type: 'text',
