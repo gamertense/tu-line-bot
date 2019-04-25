@@ -25,85 +25,89 @@ export class LocationHandler {
     }
 
     public getClosestBusStop = async () => {
-        this.userDoc = await firestoreDB.collection('user')
-            .doc(this.userId)
-            .get();
+        try {
+            this.userDoc = await firestoreDB.collection('user')
+                .doc(this.userId)
+                .get();
 
-        // Create a GeoFirestore reference
-        const geofirestore: GeoFirestore = new GeoFirestore(firestoreDB);
+            // Create a GeoFirestore reference
+            const geofirestore: GeoFirestore = new GeoFirestore(firestoreDB);
 
-        // Create a GeoCollection reference
-        const geoCollectionRef = geofirestore.collection('bus-stops');
+            // Create a GeoCollection reference
+            const geoCollectionRef = geofirestore.collection('bus-stops');
 
-        // Create a GeoQuery based on a location
-        const userLocation = [get(this.locationMessage, ['latitude']), get(this.locationMessage, ['longitude'])]
-        const query: GeoQuery = geoCollectionRef.near({ center: new firebase.firestore.GeoPoint(userLocation[0], userLocation[1]), radius: 0.1 });
+            // Create a GeoQuery based on a location
+            const userLocation = [get(this.locationMessage, ['latitude']), get(this.locationMessage, ['longitude'])]
+            const query: GeoQuery = geoCollectionRef.near({ center: new firebase.firestore.GeoPoint(userLocation[0], userLocation[1]), radius: 0.1 });
 
-        // Get the closest bus stop
-        const busStop = await query.get();
-        // Sort docs since the closest one may be at index 2.
-        busStop.docs.sort((a, b) => (a.distance > b.distance) ? 1 : -1);
+            // Get the closest bus stop
+            const busStop = await query.get();
+            // Sort docs since the closest one may be at index 2.
+            busStop.docs.sort((a, b) => (a.distance > b.distance) ? 1 : -1);
 
-        const distanceKM = get(busStop.docs, ['0', 'distance']);
-        const busStopID = get(busStop.docs, ['0', 'id']);
-        const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID);
-        const busStopDoc = await busDocRef.get();
+            const distanceKM = get(busStop.docs, ['0', 'distance']);
+            const busStopID = get(busStop.docs, ['0', 'id']);
+            const busDocRef = firestoreDB.collection('bus-stops').doc(busStopID);
+            const busStopDoc = await busDocRef.get();
 
-        let lineMessages: Message[] = [];
-        let message: Message = {
-            type: 'text',
-            text: 'Unable to find the closest bus stop.',
-        };
+            let lineMessages: Message[] = [];
+            let message: Message = {
+                type: 'text',
+                text: 'Unable to find the closest bus stop.',
+            };
 
-        if (!busStopDoc.exists) {
-            lineMessages.push(message);
-            return message;
-        } else {
-            const busInfo = get(busStopDoc.data(), ['d', 'info']);
-            this.busLine = get(busStopDoc.data(), ['d', 'line']);
-            let coordinates = get(busStopDoc.data(), ['d', 'coordinates']);
-            let contentObj = require('./assets/line_template/journey_summary.json');
+            if (!busStopDoc.exists) {
+                lineMessages.push(message);
+                return message;
+            } else {
+                const busInfo = get(busStopDoc.data(), ['d', 'info']);
+                this.busLine = get(busStopDoc.data(), ['d', 'line']);
+                let coordinates = get(busStopDoc.data(), ['d', 'coordinates']);
+                let contentObj = require('./assets/line_template/journey_summary.json');
 
-            set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination'))
-            set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่านคือ 1A 1B 3') //Not finish
-            set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`)
-            set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`)
-            //Button
-            set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}`)
-            //Traffic status
-            set(contentObj, 'contents.body.contents[4].contents[5].contents[1].text', 'normal')
+                set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination'))
+                set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่านคือ 1A 1B 3') //Not finish
+                set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`)
+                set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`)
+                //Button
+                set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}`)
+                //Traffic status
+                set(contentObj, 'contents.body.contents[4].contents[5].contents[1].text', 'normal')
 
 
-            // message = {
-            //     type: 'text',
-            //     text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`
-            // };
-            // lineMessages.push(message);
+                // message = {
+                //     type: 'text',
+                //     text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`
+                // };
+                // lineMessages.push(message);
 
-            // //Push if the user has to take > 1 buses
-            // const preBusMsg = await this.findPreDestination(userLocation);
-            // if (preBusMsg) {
-            //     message = {
-            //         type: 'text',
-            //         text: preBusMsg.text
-            //     };
+                // //Push if the user has to take > 1 buses
+                // const preBusMsg = await this.findPreDestination(userLocation);
+                // if (preBusMsg) {
+                //     message = {
+                //         type: 'text',
+                //         text: preBusMsg.text
+                //     };
 
-            //     lineMessages.push(message);
-            //     coordinates = preBusMsg.coor;
-            // }
+                //     lineMessages.push(message);
+                //     coordinates = preBusMsg.coor;
+                // }
 
-            // message = {
-            //     type: 'text',
-            //     text: await this.checkBusTraffic(userLocation),
-            // };
-            // lineMessages.push(message);
+                // message = {
+                //     type: 'text',
+                //     text: await this.checkBusTraffic(userLocation),
+                // };
+                // lineMessages.push(message);
 
-            // // Add button
-            // let contentObj = JSON.parse(JSON.stringify(require('./assets/line_template/mapButton.json')));
-            // set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${get(coordinates, '_latitude')},${get(coordinates, '_longitude')}`)
-            lineMessages.push(contentObj);
+                // // Add button
+                // let contentObj = JSON.parse(JSON.stringify(require('./assets/line_template/mapButton.json')));
+                // set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${get(coordinates, '_latitude')},${get(coordinates, '_longitude')}`)
+                lineMessages.push(contentObj);
 
-            return lineMessages;
+                return lineMessages;
+            }
+        } catch (err) {
+            console.log(`Error occurred in getClosestBusStop function\n${err}`)
         }
     }
 
