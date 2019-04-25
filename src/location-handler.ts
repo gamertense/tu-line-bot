@@ -60,7 +60,6 @@ export class LocationHandler {
                 lineMessages.push(message);
                 return message;
             } else {
-                const busInfo = get(busStopDoc.data(), ['d', 'info']);
                 this.busLine = get(busStopDoc.data(), ['d', 'line']);
                 let coordinates = get(busStopDoc.data(), ['d', 'coordinates']);
                 let contentObj = require('./assets/line_template/journey_summary.json');
@@ -79,7 +78,7 @@ export class LocationHandler {
                 set(contentObj, 'contents.body.contents[4].contents[5].contents[1].text', traffic.trafficStatus)
 
                 set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination'))
-                set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่านคือ 1A 1B 3') //Not finish
+                set(contentObj, 'contents.body.contents[2].text', `${this.busLine}`)
                 set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`)
                 set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`)
                 //Button
