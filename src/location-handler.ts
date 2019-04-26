@@ -85,16 +85,16 @@ export class LocationHandler {
                 set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}`)
 
                 // //Push if the user has to take > 1 buses
-                // const preBusMsg = await this.findPreDestination(userLocation);
-                // if (preBusMsg) {
-                //     message = {
-                //         type: 'text',
-                //         text: preBusMsg.text
-                //     };
+                const preBusMsg = await this.findPreDestination(userLocation);
+                if (preBusMsg) {
+                    message = {
+                        type: 'text',
+                        text: preBusMsg.text
+                    };
 
-                //     lineMessages.push(message);
-                //     coordinates = preBusMsg.coor;
-                // }
+                    lineMessages.push(message);
+                    coordinates = preBusMsg.coor;
+                }
 
                 lineMessages.push(contentObj);
 
