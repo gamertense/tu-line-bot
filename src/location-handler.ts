@@ -78,17 +78,11 @@ export class LocationHandler {
                 set(contentObj, 'contents.body.contents[4].contents[5].contents[1].text', traffic.trafficStatus)
 
                 set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination'))
-                set(contentObj, 'contents.body.contents[2].text', `สายรถที่ผ่าน: ${this.busLine}`)
+                set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่าน: ' + get(this.userDoc.data(), 'busLine'))
                 set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`)
                 set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`)
                 //Button
                 set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}`)
-
-                // message = {
-                //     type: 'text',
-                //     text: `ป้ายรถเมล์ที่ใกล้คุณที่สุดคือ ${busInfo} อยู่ห่างจากคุณ ${(distanceKM * 1000).toFixed(2)} เมตรและคือสาย ${this.busLine}`
-                // };
-                // lineMessages.push(message);
 
                 // //Push if the user has to take > 1 buses
                 // const preBusMsg = await this.findPreDestination(userLocation);
@@ -102,15 +96,6 @@ export class LocationHandler {
                 //     coordinates = preBusMsg.coor;
                 // }
 
-                // message = {
-                //     type: 'text',
-                //     text: await this.checkBusTraffic(userLocation),
-                // };
-                // lineMessages.push(message);
-
-                // // Add button
-                // let contentObj = JSON.parse(JSON.stringify(require('./assets/line_template/mapButton.json')));
-                // set(contentObj, 'contents.body.contents[0].action.uri', `http://www.google.com/maps/place/${get(coordinates, '_latitude')},${get(coordinates, '_longitude')}`)
                 lineMessages.push(contentObj);
 
                 return lineMessages;
