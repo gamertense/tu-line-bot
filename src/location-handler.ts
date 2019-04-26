@@ -84,7 +84,9 @@ export class LocationHandler {
                 //Button
                 set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}`)
 
-                // //Push if the user has to take > 1 buses
+                lineMessages.push(contentObj);
+
+                // Push if the user has to take > 1 buses
                 const preBusMsg = await this.findPreDestination(userLocation);
                 if (preBusMsg) {
                     message = {
@@ -95,8 +97,6 @@ export class LocationHandler {
                     lineMessages.push(message);
                     coordinates = preBusMsg.coor;
                 }
-
-                lineMessages.push(contentObj);
 
                 return lineMessages;
             }
