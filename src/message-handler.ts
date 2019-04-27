@@ -8,6 +8,7 @@ import {
   LocationEventMessage,
   VideoEventMessage,
   StickerEventMessage,
+  FlexMessage,
 } from '@line/bot-sdk';
 
 import { LINE_VERIFY_TOKEN } from './config';
@@ -75,7 +76,7 @@ export class MessageHandler {
     const userId = get(event, ['source', 'userId']);
     const replyToken = get(event, 'replyToken');
     const message: LocationEventMessage = get(event, 'message');
-    const locHandler = new LocationHandler(userId, message);
+    const locHandler: any = new LocationHandler(userId, message);
 
     return this.lineClient.replyMessage(replyToken, await locHandler.getClosestBusStop());
     // return this.lineClient.replyMessage(replyToken, [{ type: 'text', text: textRes }]);
