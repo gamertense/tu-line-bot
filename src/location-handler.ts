@@ -99,6 +99,7 @@ export class LocationHandler {
             }
         } catch (err) {
             console.log(`Error occurred in getClosestBusStop function\n${err}`)
+            return
         }
     }
 
