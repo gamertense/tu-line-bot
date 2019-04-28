@@ -75,12 +75,13 @@ export class LocationHandler {
                 }
                 set(contentObj, 'contents.body.contents[4].contents[2].contents[1].text', traffic.timeInMin) //Set estimated time of bus arrival in minutes
                 set(contentObj, 'contents.body.contents[4].contents[5].contents[1].text', traffic.trafficStatus) //Set traffic status
-                set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination')) // Set destination
+                set(contentObj, 'contents.body.contents[1].text', get(this.userDoc.data(), 'destination_name')) // Set destination
                 set(contentObj, 'contents.body.contents[2].text', 'สายรถที่ผ่าน: ' + get(this.userDoc.data(), 'busLine')) //Set bus lines passing the destination.
                 set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`) //Set distance in meters
                 set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`) //Set bus lines passing the closest bus stop
-                //Button
-                set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}`)
+                // Shwo on map button
+                const dest_loc = get(this.userDoc.data(), 'destination_loc')
+                set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}&dest=${dest_loc[0]},${dest_loc[1]}`)
 
                 lineMessages.push(contentObj);
 

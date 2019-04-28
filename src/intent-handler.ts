@@ -21,8 +21,8 @@ export class IntentHandler {
         switch (intentName) {
             case 'TU-Places - yes':
                 return this.tuPlace();
-            case 'Vote restaurant': 
-                return this.popularRest('give a vote'); 
+            case 'Vote restaurant':
+                return this.popularRest('give a vote');
             case 'Vote restaurant - name - score - yes':
                 return this.voteRest();
             case 'Popular restaurant':
@@ -62,7 +62,8 @@ export class IntentHandler {
                             }
                         }]
                     }
-                    set(message, 'text', `สายรถ NGV ที่ผ่าน ${userDestination} คือ ${get(doc.data(), 'd.line')} กดปุ่ม Send location ด้านล่างเพื่อหาป้ายที่ใกล้ที่สุดครับ`)
+                    const busLine = get(doc.data(), 'd.line');
+                    set(message, 'text', `สายรถ NGV ที่ผ่าน ${userDestination} คือ ${busLine} กดปุ่ม Send location ด้านล่างเพื่อหาป้ายที่ใกล้ที่สุดครับ`)
                     set(message, "quickReply", qreply)
                     lineMessages.push(message);
 
@@ -70,9 +71,17 @@ export class IntentHandler {
                     const userRef = firestoreDB.collection('user').doc(this.userid);
                     const userDoc = userRef.get();
                     if (userDoc.exists)
-                        userRef.update({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
+                        userRef.update({
+                            destination_name: userDestination,
+                            destination_loc: get(doc.data(), 'd.coordinates'),
+                            busLine: busLine
+                        });
                     else
-                        userRef.set({ destination: userDestination, busLine: get(doc.data(), 'd.line') });
+                        userRef.set({
+                            destination_name: userDestination,
+                            destination_loc: get(doc.data(), 'd.coordinates'),
+                            busLine: busLine
+                        });
 
                     break
                 }
