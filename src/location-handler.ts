@@ -81,7 +81,7 @@ export class LocationHandler {
                 set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`) //Set bus lines passing the closest bus stop
                 // Shwo on map button
                 const dest_loc = get(this.userDoc.data(), 'destination_loc')
-                set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}&dest=${dest_loc[0]},${dest_loc[1]}`)
+                set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}&dest=${dest_loc._latitude},${dest_loc._longitude}`)
 
                 lineMessages.push(contentObj);
 
