@@ -80,9 +80,8 @@ export class LocationHandler {
                 set(contentObj, 'contents.body.contents[4].contents[0].contents[1].text', `${(distanceKM * 1000).toFixed(2)} เมตร`) //Set distance in meters
                 set(contentObj, 'contents.body.contents[4].contents[1].contents[1].text', `${this.busLine}`) //Set bus lines passing the closest bus stop
                 // Shwo on map button
-                const bus_loc = get(busStopDoc.data(), ['d', 'coordinates']);
                 const dest_loc = get(this.userDoc.data(), 'destination_loc')
-                set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${bus_loc._latitude},${bus_loc._longitude}}&dest=${dest_loc._latitude},${dest_loc._longitude}`)
+                set(contentObj, 'contents.body.contents[4].contents[3].contents[0].action.uri', `${MAP_URL}/?origin=${userLocation[0]},${userLocation[1]}&dest=${dest_loc._latitude},${dest_loc._longitude}`)
 
                 lineMessages.push(contentObj);
 
