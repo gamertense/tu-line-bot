@@ -206,7 +206,7 @@ export class LocationHandler {
                 const preTakeBus = preDest['line'].filter(line => this.busLine[0] !== line);
 
                 return {
-                    text: `คุณต้องนั่งรถสาย ${this.busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preTakeBus} เพื่อไป ${get(this.userDoc.data(), 'destination')}`,
+                    text: `คุณต้องนั่งรถสาย ${this.busLine} แล้วไปลงที่ ${preDest['name']} จากนั้นต่อสาย ${preTakeBus} เพื่อไป ${get(this.userDoc.data(), 'destination_name')}`,
                     coor: preDest['coor'],
                 }
             }
