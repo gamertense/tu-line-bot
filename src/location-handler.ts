@@ -120,11 +120,20 @@ export class LocationHandler {
 
             switch (true) {
                 case speed <= 10:
-                    return { trafficStatus: `ติดขัดมาก`, timeInMin: `${fnb.time + 5} นาที` };
+                    return {
+                        trafficStatus: `ติดขัดมาก`,
+                        timeInMin: (fnb.time + 5) + 'นาที'
+                    };
                 case speed <= 20:
-                    return { trafficStatus: `ติดขัดเล็กน้อย`, timeInMin: `${fnb.time + 3} นาที` };
+                    return {
+                        trafficStatus: `ติดขัดเล็กน้อย`,
+                        timeInMin: (fnb.time + 3) + 'นาที'
+                    };
                 default:
-                    return { trafficStatus: 'ปกติ', timeInMin: `${fnb.time} นาที` }
+                    return {
+                        trafficStatus: 'ปกติ',
+                        timeInMin: `${fnb.time} นาที`
+                    }
             }
 
         } catch (error) {
@@ -142,7 +151,7 @@ export class LocationHandler {
             let latlon: number[] = [];
 
             for (let bus of allBuses.data) {
-                if (this.busLine[0] === get(busMapping, bus.carno)) {
+                if (this.busLine[0] === get(busMapping, bus.carno)) { //If bus line that user needs to take equals incoming bus
                     const tomtomURL = `https://api.tomtom.com/routing/1/calculateRoute/${bus.lat},${bus.lon}:${userLocation[0]},${userLocation[1]}/json?avoid=unpavedRoads&key=${ROUTE_KEY}`;
                     const tomtomRes = await axios.get(tomtomURL);
                     const distance = get(tomtomRes, ['data', 'routes', '0', 'summary', 'lengthInMeters']) / 1000;
