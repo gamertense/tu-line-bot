@@ -120,11 +120,11 @@ export class LocationHandler {
 
             switch (true) {
                 case speed <= 10:
-                    return { trafficStatus: `ติดขัดมาก`, timeInMin: `${fnb.time + 5}` };
+                    return { trafficStatus: `ติดขัดมาก`, timeInMin: `${fnb.time + 5} นาที` };
                 case speed <= 20:
-                    return { trafficStatus: `ติดขัดเล็กน้อย`, timeInMin: `${fnb.time + 3}` };
+                    return { trafficStatus: `ติดขัดเล็กน้อย`, timeInMin: `${fnb.time + 3} นาที` };
                 default:
-                    return { trafficStatus: 'ปกติ', timeInMin: `${fnb.time}` }
+                    return { trafficStatus: 'ปกติ', timeInMin: `${fnb.time} นาที` }
             }
 
         } catch (error) {
@@ -158,7 +158,7 @@ export class LocationHandler {
             }
 
             return {
-                time: minTravelTime.toFixed(0) + ' นาที',
+                time: minTravelTime.toFixed(0),
                 lat: latlon[0],
                 lon: latlon[1]
             }
