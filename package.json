@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@firebase/app-types": "^0.3.4",
-    "@firebase/util": "^0.2.7",
+    "@firebase/util": "^0.3.4",
     "@line/bot-sdk": "^6.1.0",
     "axios": "^0.21.1",
     "dialogflow": "^0.8.2",
