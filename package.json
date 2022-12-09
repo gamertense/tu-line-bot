@@ -13,7 +13,7 @@
     "axios": "^0.21.1",
     "dialogflow": "^0.8.2",
     "dotenv": "^6.0.0",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "firebase": "^5.8.3",
     "firebase-admin": "^7.0.0",
     "geofirestore": "^3.2.2",
